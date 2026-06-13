@@ -13,7 +13,7 @@ wiki/ 를 기반으로 질문에 답한다.
 1. `wiki/conventions/` — 컨벤션 관련 질문
 2. `wiki/decisions/` — 아키텍처 결정 관련 질문
 3. `wiki/devlog/` — 개발 진행 관련 질문
-4. `dashboard.md` — 할 일·우선순위 관련 질문
+4. `wiki/dashboard.md` — 할 일·우선순위 관련 질문
 5. `wiki/meetings/` — 회의 결정 관련 질문
 
 ---
@@ -49,7 +49,7 @@ raw/ 에서 가져온 정보는 "(raw/ 직접 참조)" 표시를 붙인다.
 - 이 질문이 다시 올 가능성이 있으면
 
 저장 시 log.md에 기록:
-```
+```text
 ## [YYYY-MM-DD] query | [질문 요약]
 
 - **참조 페이지:** 목록

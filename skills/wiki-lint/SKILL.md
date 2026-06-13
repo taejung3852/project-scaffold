@@ -27,20 +27,20 @@ lint는 읽기 전용 — 자동 수정하지 않는다. 결과를 보고하고 
 
 다음 형식으로 결과를 보여준다:
 
-```
+```text
 ## /wiki-lint 결과 — YYYY-MM-DD
 
 ### 🔴 즉시 수정 필요
-- [깨진 wikilink] wiki/concepts/Foo.md → [[Bar]] 없음
-- [frontmatter 누락] wiki/projects/Baz.md — updated 필드 없음
+1. [깨진 wikilink] wiki/concepts/Foo.md → [[Bar]] 없음
+2. [frontmatter 누락] wiki/projects/Baz.md — updated 필드 없음
 
 ### 🟡 검토 권장
-- [고아 페이지] wiki/concepts/Qux.md — 아무도 링크하지 않음
-- [미해결 모순] wiki/synthesis/Alpha.md — ⚠️ 모순 블록 존재
+3. [고아 페이지] wiki/concepts/Qux.md — 아무도 링크하지 않음
+4. [미해결 모순] wiki/synthesis/Alpha.md — ⚠️ 모순 블록 존재
 
 ### 🟢 참고
-- [stale] wiki/concepts/Beta.md — 120일 미업데이트
-- [누락 백링크] wiki/projects/Gamma.md → [[Delta]] 언급하지만 역링크 없음
+5. [stale] wiki/concepts/Beta.md — 120일 미업데이트
+6. [누락 백링크] wiki/projects/Gamma.md → [[Delta]] 언급하지만 역링크 없음
 
 전체: 🔴 2개 / 🟡 2개 / 🟢 2개
 ```
@@ -51,7 +51,7 @@ lint는 읽기 전용 — 자동 수정하지 않는다. 결과를 보고하고 
 
 리포트 후 다음을 묻는다:
 
-> "어떤 항목을 수정할까요? 번호로 선택하거나 all을 입력해주세요. skip이면 log만 기록합니다."
+> "어떤 항목을 수정할까요? 번호를 입력하거나(예: 1 3 5), all이면 전체, skip이면 log만 기록합니다."
 
 - 선택한 항목은 **사용자와 함께 수정** (AI가 수정안 제안 → 확인 후 적용)
 - 자동 일괄 수정은 금지
@@ -62,7 +62,7 @@ lint는 읽기 전용 — 자동 수정하지 않는다. 결과를 보고하고 
 
 `wiki/log.md` 맨 위에 append:
 
-```
+```text
 ## [YYYY-MM-DD] wiki-lint
 
 - **🔴 즉시 수정:** n개

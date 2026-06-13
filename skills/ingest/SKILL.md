@@ -67,7 +67,7 @@ updated: YYYY-MM-DD
 
 `wiki/log.md` 맨 위에 append:
 
-```
+```text
 ## [YYYY-MM-DD] ingest | [소스 제목]
 
 - **소스:** `raw/[경로]`

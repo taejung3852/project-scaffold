@@ -47,7 +47,7 @@ if command -v pylint &>/dev/null; then
 fi
 
 # ── JavaScript/TypeScript: eslint (설치된 경우만) ──
-if command -v npx &>/dev/null && [ -f ".eslintrc*" -o -f "eslint.config.*" ]; then
+if command -v npx &>/dev/null && { compgen -G ".eslintrc*" >/dev/null 2>&1 || compgen -G "eslint.config.*" >/dev/null 2>&1; }; then
   JS_FILES=$(echo "$STAGED" | grep -E "\.(js|ts|jsx|tsx)$")
   if [ -n "$JS_FILES" ]; then
     echo "$JS_FILES" | xargs npx eslint --quiet 2>/dev/null
