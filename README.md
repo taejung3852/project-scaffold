@@ -2,6 +2,7 @@
 
 > AI 에이전트와 함께 개발하는 모든 프로젝트를 위한 LLM Wiki 기반 개발 하네스 템플릿
 
+[![Harness Engineering](https://img.shields.io/badge/Harness-Engineering-1D3461?logoColor=white)](./AGENT.md)
 [![Shell](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
 [![Markdown](https://img.shields.io/badge/Markdown-LLM_Wiki-000000?logo=markdown&logoColor=white)](https://gist.github.com/karpathy/00d7fb4bde0f8c7ef86ab2a2b3ab6bcd)
 [![Status](https://img.shields.io/badge/Status-🚧_In_Development-yellow)]()
