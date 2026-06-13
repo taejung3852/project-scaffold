@@ -16,6 +16,7 @@
 | `/code-lint` | 컨벤션 기반 코드 검증 | ✅ /setup 후 권장 |
 | `/wiki-lint` | wiki 품질 점검 | ✅ /setup 후 권장 |
 | `/dashboard` | 프로젝트 현황 대시보드 | ✅ /setup 후 권장 |
+| `/curate` | 스킬 진화 큐레이터 — 통합·아카이브·신규 제안 | ❌ 지금 실행 가능 |
 
 ---
 
@@ -31,6 +32,24 @@
 - `/code-lint` → `skills/code-lint/SKILL.md`
 - `/wiki-lint` → `skills/wiki-lint/SKILL.md`
 - `/dashboard` → `skills/dashboard/SKILL.md`
+- `/curate` → `skills/curate/SKILL.md`
+
+---
+
+## 스킬 진화 권고
+
+<!-- prompt_builder_start -->
+_마지막 갱신: 2026-06-14_
+
+- `/ingest` 실행 권장: `/capture`(3회) 대비 `/ingest`(1회) 사용 불균형
+- 최다 사용: `/capture` (3회)
+<!-- prompt_builder_end -->
+
+---
+
+## 비서 페르소나
+
+@SOUL.md
 
 ---
 
