@@ -4,7 +4,7 @@
 
 [![Harness Engineering](https://img.shields.io/badge/Harness-Engineering-1D3461?logoColor=white)](./AGENT.md)
 [![Shell](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
-[![Markdown](https://img.shields.io/badge/Markdown-LLM_Wiki-000000?logo=markdown&logoColor=white)](https://gist.github.com/karpathy/00d7fb4bde0f8c7ef86ab2a2b3ab6bcd)
+[![Markdown](https://img.shields.io/badge/Markdown-LLM_Wiki-000000?logo=markdown&logoColor=white)](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
 [![Status](https://img.shields.io/badge/Status-🚧_In_Development-yellow)]()
 
 ---
@@ -13,22 +13,23 @@
 
 1. [개요](#개요)
 2. [왜 만들었나](#왜-만들었나)
-3. [시스템 구조](#시스템-구조)
-4. [핵심 기능](#핵심-기능)
-5. [설계 원칙](#설계-원칙)
-6. [빠른 시작](#빠른-시작)
-7. [프로젝트 구조](#프로젝트-구조)
-8. [현재 상태](#현재-상태)
+3. [LLM Wiki란?](#llm-wiki란)
+4. [시스템 구조](#시스템-구조)
+5. [핵심 기능](#핵심-기능)
+6. [설계 원칙](#설계-원칙)
+7. [빠른 시작](#빠른-시작)
+8. [프로젝트 구조](#프로젝트-구조)
+9. [현재 상태](#현재-상태)
 
 ---
 
 ## 개요
 
-project-scaffold는 소프트웨어 개발 프로젝트에 **AI 에이전트 거버넌스 레이어**를 구축하는 GitHub 템플릿이다.
+project-scaffold는 소프트웨어 개발 프로젝트에 **AI 에이전트 하네스**를 구축하는 GitHub 템플릿이다.
 
 AI 에이전트는 강력하지만, 컨텍스트가 없으면 매번 같은 실수를 반복한다. 팀 컨벤션을 모르고, 지난 결정을 기억하지 못하며, 코드리뷰 기준도 없다. project-scaffold는 이 문제를 **에이전트가 스스로 읽고 따를 수 있는 살아있는 wiki**로 해결한다.
 
-[Andrej Karpathy가 제안한 LLM Wiki 패턴](https://gist.github.com/karpathy/00d7fb4bde0f8c7ef86ab2a2b3ab6bcd)을 기반으로 하며, RAG 없이 에이전트가 소유·유지하는 마크다운 wiki가 프로젝트 전체의 단일 진실 소스가 된다.
+[Andrej Karpathy가 제안한 LLM Wiki 패턴](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)을 기반으로 하며, RAG 없이 에이전트가 소유·유지하는 마크다운 wiki가 프로젝트 전체의 단일 진실 소스가 된다.
 
 ---
 
@@ -50,6 +51,50 @@ AI 코딩 에이전트를 프로젝트에 도입할 때 가장 큰 장벽은 **"
 팀 컨벤션을 **구조화된 wiki로 문서화**하고, 에이전트가 작업마다 해당 wiki를 읽고 따르게 한다. `/setup` 인터뷰로 프로젝트 고유의 규칙을 정의하고, git hook으로 위반을 차단하며, devlog가 자동으로 쌓인다.
 
 > **핵심 아이디어**: 에이전트에게 규칙을 외우게 하는 대신, 에이전트가 언제든 꺼내 읽을 수 있는 장소를 만든다.
+
+---
+
+## LLM Wiki란?
+
+LLM Wiki는 Andrej Karpathy가 제안한 지식 관리 패턴이다. ([원문 Gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f))
+
+### 구조
+
+3개의 레이어로 구성된다:
+
+| 레이어 | 경로 | 소유자 | 역할 |
+|---|---|---|---|
+| **원본** | `raw/` | 사람 | 불변 소스. 회의록·결정사항·기사·코드 스니펫 등 |
+| **Wiki** | `wiki/` | AI 에이전트 | 원본을 읽고 컴파일한 구조화된 지식 |
+| **Schema** | `AGENT.md` | 사람+AI | 에이전트 동작 규칙 정의 |
+
+### 3가지 오퍼레이션
+
+- **Ingest**: 새 원본 추가 → 에이전트가 요약 페이지 생성, 기존 wiki 페이지 업데이트, 상호참조(wikilink) 유지
+- **Query**: wiki 페이지 탐색 → 종합 답변 제공 → 가치 있는 결과는 `wiki/synthesis/`에 저장
+- **Lint**: 주기적 건강 점검 → 고아 페이지·깨진 링크·모순·stale 정보 탐지
+
+### RAG 대신 LLM Wiki를 쓰는 이유
+
+> *"원본 문서는 매번 재검색되지 않는다. 지식이 컴파일되어 한 번 유지되고, 쿼리마다 다시 도출되지 않는다."*
+> — Andrej Karpathy
+
+RAG는 쿼리마다 원본 문서를 벡터 검색하고 LLM이 매번 같은 추론을 반복한다. LLM Wiki는 이미 구조화된 wiki에서 답변한다. 추론이 한 번만 일어나고, 그 결과가 wiki에 축적된다.
+
+| | RAG | LLM Wiki |
+|---|---|---|
+| 지식 저장 | 벡터 DB (임베딩) | 마크다운 파일 (읽을 수 있는 텍스트) |
+| 추론 시점 | 쿼리마다 | Ingest 시 한 번 |
+| 상호참조 | 유사도 기반 | 명시적 `[[wikilink]]` |
+| 유지보수 | 재인덱싱 필요 | `/wiki-lint` 으로 점검 |
+| 인프라 | Vector DB 서버 | Git 저장소 |
+
+### 왜 project-scaffold에 채택했나
+
+- 소프트웨어 팀의 컨벤션·결정·회의록은 한번 정리되면 자주 바뀌지 않는다 → RAG의 재검색 이점이 없음
+- 에이전트가 컨벤션 wiki를 직접 읽고 따르는 것이 벡터 검색으로 찾는 것보다 정확하고 신뢰할 수 있다
+- Git으로 버전관리되어 히스토리 추적과 팀 협업이 무료로 따라온다
+- Vector DB 없이 마크다운 파일만으로 동작하므로 어떤 AI 에이전트에도 에코시스템 종속 없이 적용 가능하다
 
 ---
 
@@ -324,5 +369,5 @@ bash init.sh
 
 ## 영감
 
-- [Andrej Karpathy — LLM Wiki 패턴 (GitHub Gist)](https://gist.github.com/karpathy/00d7fb4bde0f8c7ef86ab2a2b3ab6bcd)
+- [Andrej Karpathy — LLM Wiki 패턴 (GitHub Gist)](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
 - [walkinglabs/awesome-harness-engineering](https://github.com/walkinglabs/awesome-harness-engineering)
