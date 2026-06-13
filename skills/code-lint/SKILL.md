@@ -5,6 +5,10 @@ wiki/conventions/의 팀 규칙을 기준으로 판단한다.
 
 ---
 
+> **추적:** `python3 scripts/skill_usage.py track code-lint`
+
+---
+
 ## Step 0 — 대상 결정
 
 **인자가 있으면**: 해당 파일·디렉토리를 대상으로 한다.

@@ -5,6 +5,10 @@ wiki/ 를 기반으로 질문에 답한다.
 
 ---
 
+> **추적:** `python3 scripts/skill_usage.py track query`
+
+---
+
 ## Step 1 — index.md 먼저 읽기
 
 `wiki/index.md` 를 읽어 질문과 관련된 페이지를 파악한다.

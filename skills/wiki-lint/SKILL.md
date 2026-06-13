@@ -5,6 +5,10 @@ lint는 읽기 전용 — 자동 수정하지 않는다. 결과를 보고하고 
 
 ---
 
+> **추적:** `python3 scripts/skill_usage.py track wiki-lint`
+
+---
+
 ## Step 1 — 전체 스캔
 
 `wiki/` 하위 전체 파일을 스캔한다.

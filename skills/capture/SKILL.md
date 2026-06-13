@@ -5,6 +5,10 @@
 
 ---
 
+> **추적:** `python3 scripts/skill_usage.py track capture`
+
+---
+
 ## Step 0 — 캡처 타입 결정
 
 `/capture` 실행 시 타입을 확인한다.
