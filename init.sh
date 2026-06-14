@@ -138,6 +138,36 @@ EOF
   echo "  ✅ wiki/dashboard.md 생성"
 fi
 
+# ── Obsidian 설정 복사 ──
+echo ""
+echo "🔭 Obsidian 설정 복사 중..."
+
+if [ -d ".obsidian-template" ]; then
+  cp -r .obsidian-template/. wiki/.obsidian/
+  echo "  ✅ wiki/.obsidian/ 생성 완료 (폴더 색상·그래프·플러그인 설정 포함)"
+  echo "     → Obsidian에서 wiki/ 폴더를 vault로 열면 즉시 적용됩니다"
+else
+  echo "  ⚠️  .obsidian-template/ 폴더가 없습니다. Obsidian 설정이 생략됩니다."
+fi
+
+# ── Graphify 설정 ──
+echo ""
+echo "🔗 Graphify 설정 중..."
+
+if command -v graphify &> /dev/null; then
+  echo "  ✅ graphifyy 설치 확인"
+  graphify install
+  echo "  ✅ graphify install 완료 — AI 에이전트에 스킬 등록됨"
+  echo "     → wiki/ 갱신 후 'graphify update wiki/' 로 그래프를 업데이트하세요"
+else
+  echo "  ⚠️  graphifyy 미설치 — Graphify 스킬을 사용하려면 아래 명령어로 설치하세요:"
+  echo ""
+  echo "     pip install graphifyy"
+  echo "     graphify install"
+  echo ""
+  echo "     설치 후 'graphify update wiki/' 로 지식 그래프를 빌드할 수 있습니다"
+fi
+
 # ── 완료 ──
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
