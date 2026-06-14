@@ -18,7 +18,7 @@ USAGE_FILE = Path("skills/.usage.json")
 def load() -> dict:
     if USAGE_FILE.exists():
         return json.loads(USAGE_FILE.read_text())
-    return {"skills": {}}
+    return {"skills": {}}  # 파일 없음 — 초기 상태 반환
 
 
 def save(data: dict):
