@@ -5,6 +5,10 @@
 
 ---
 
+> **추적:** `python3 scripts/skill_usage.py track ingest`
+
+---
+
 ## Step 0 — 대상 파일 결정
 
 **인자가 있으면**: 해당 경로를 바로 사용한다.
