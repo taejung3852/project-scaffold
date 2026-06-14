@@ -74,6 +74,8 @@ def list_skills():
         print(f"- {d.name}: {count}회 | 최근 {last}")
     if not active:
         print("- 없음")
+    if len(active) <= 3:
+        print(f"\n⚠️  활성 스킬이 {len(active)}개입니다. /curate는 아카이브를 자동 차단합니다.")
 
     print()
     print("### 아카이브")
@@ -93,8 +95,16 @@ def archive_skill(name: str):
     if not skill_dir.exists():
         print(f"스킬 없음: skills/{name}/")
         sys.exit(1)
+    active = [d for d in SKILLS_DIR.iterdir() if d.is_dir() and not d.name.startswith(".")]
+    if len(active) <= 3:
+        print(f"활성 스킬이 {len(active)}개입니다. 최소 3개 유지 원칙에 따라 아카이브할 수 없습니다.")
+        sys.exit(1)
     ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
-    shutil.move(str(skill_dir), str(ARCHIVE_DIR / name))
+    archive_target = ARCHIVE_DIR / name
+    if archive_target.exists():
+        print(f"⚠️  이미 아카이브됨: {name}. 먼저 restore 또는 delete를 실행하세요.")
+        sys.exit(1)
+    shutil.move(str(skill_dir), str(archive_target))
     print(f"✓ 아카이브: skills/{name}/ → skills/.archive/{name}/")
 
 

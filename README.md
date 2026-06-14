@@ -295,7 +295,7 @@ python3 scripts/curator.py report   ← Python: 사용 데이터 기반 stale/ar
 | 통합 | 기능 중복 탐지 | SKILL.md 병합 제안 |
 | 신규 | 반복 패턴 감지 | 새 스킬 생성 제안 |
 
-스킬 실행마다 `skill_usage.py`가 `skills/.usage.json`을 갱신하고, `prompt_builder.py`가 `AGENT.md`의 권고 섹션을 자동 업데이트한다. 에이전트는 다음 세션에서 갱신된 AGENT.md를 읽고 행동이 달라진다.
+각 SKILL.md에 `skill_usage.py track` 호출이 포함되어 있어, 스킬 실행 시 수동으로 실행하면 `skills/.usage.json`이 갱신되고 `prompt_builder.py`가 `AGENT.md` 권고 섹션을 자동 업데이트한다. 에이전트는 다음 세션에서 갱신된 AGENT.md를 읽고 행동이 달라진다.
 
 ---
 
@@ -406,7 +406,7 @@ bash init.sh
 │   └── devlog-auto.sh              ← post-commit: dev-log 자동 생성
 │
 ├── wiki/                           ← 에이전트가 소유·유지하는 지식 베이스
-│   ├── conventions/                ← /setup이 생성하는 컨벤션 페이지 (13개)
+│   ├── conventions/                ← /setup이 생성하는 컨벤션 페이지 (13개 + SOUL.md 별도)
 │   ├── decisions/                  ← 아키텍처·기술 결정 기록
 │   ├── devlog/                     ← 개발 진행 기록
 │   ├── meetings/                   ← 회의록

@@ -65,7 +65,7 @@ def build_nudge(data: dict) -> str:
     top = max(skills.items(), key=lambda x: x[1]["count"])
     nudges.append(f"- 최다 사용: `/{top[0]}` ({top[1]['count']}회)")
 
-    lines = [f"_마지막 갱신: {today}_", ""] + nudges
+    lines = [f"_마지막 갱신: {today}_", "", *nudges]
     return "\n".join(lines)
 
 

@@ -58,8 +58,12 @@ Step 1 리포트를 바탕으로 다음을 판단한다:
 
 > "어떤 액션을 실행할까요? (번호 입력 또는 skip)"
 
-- **통합 선택** → `python3 scripts/skill_manager.py create [새스킬명]` 후 SKILL.md 병합 작업
-- **아카이브 선택** → `python3 scripts/curator.py archive`
+- **통합 선택** → 아래 순서로 진행:
+  1. `python3 scripts/skill_manager.py create [새스킬명]` — 새 스킬 생성
+  2. `skills/[스킬A]/SKILL.md`와 `skills/[스킬B]/SKILL.md`를 읽고 새 SKILL.md에 Step 병합
+  3. `python3 scripts/skill_manager.py archive [스킬A]` / `archive [스킬B]` — 기존 스킬 아카이브
+  4. `wiki/log.md`에 통합 기록: `[스킬A] + [스킬B] → [새스킬명]`
+- **아카이브 선택** → `python3 scripts/skill_manager.py archive [스킬명]`
 - **신규 생성** → `python3 scripts/skill_manager.py create [스킬명]`
 - **skip** → log.md에 결과만 기록
 
