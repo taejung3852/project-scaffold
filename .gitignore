@@ -1,0 +1,11 @@
+# Graphify — 로컬 생성 파일, 개인 맥락 분석용
+graphify-out/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# OS
+.DS_Store

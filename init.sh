@@ -138,6 +138,18 @@ EOF
   echo "  ✅ wiki/dashboard.md 생성"
 fi
 
+# ── Obsidian 설정 복사 ──
+echo ""
+echo "🔭 Obsidian 설정 복사 중..."
+
+if [ -d ".obsidian-template" ]; then
+  cp -r .obsidian-template/. wiki/.obsidian/
+  echo "  ✅ wiki/.obsidian/ 생성 완료 (폴더 색상·그래프·플러그인 설정 포함)"
+  echo "     → Obsidian에서 wiki/ 폴더를 vault로 열면 즉시 적용됩니다"
+else
+  echo "  ⚠️  .obsidian-template/ 폴더가 없습니다. Obsidian 설정이 생략됩니다."
+fi
+
 # ── 완료 ──
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
