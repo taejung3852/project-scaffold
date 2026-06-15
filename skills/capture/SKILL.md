@@ -1,3 +1,7 @@
+---
+description: "회의·결정·개발 과정을 raw/에 저장한다. ingest_status: pending으로 마킹해 /ingest가 자동 탐지. 회의 직후, 아키텍처 결정 시, dev-log 작성 시 사용."
+---
+
 # /capture — 회의·결정·개발 기록 스킬
 
 작업 중 발생하는 회의·결정·개발 과정을 `raw/`에 저장한다.

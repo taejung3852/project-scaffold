@@ -1,3 +1,7 @@
+---
+description: "프로젝트 현황을 대시보드로 렌더링한다. wiki/의 devlog·conventions·decisions 데이터 기반. 오늘 할 일·진행 현황·주의 항목 확인 시 사용."
+---
+
 # /dashboard — 프로젝트 대시보드 스킬
 
 프로젝트 현황을 markdown → terminal → web UI 순으로 렌더링한다.

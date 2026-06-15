@@ -1,6 +1,14 @@
 # Graphify — 로컬 생성 파일, 개인 맥락 분석용
 graphify-out/
 
+# init.sh가 생성하는 에이전트별 스킬 심링크·변환 파일
+.claude/skills/
+.agents/
+.windsurf/skills/
+.cursor/rules/
+.continue/prompts/
+.aider.conf.yml
+
 # Python
 __pycache__/
 *.pyc
