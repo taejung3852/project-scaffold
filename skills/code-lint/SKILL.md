@@ -1,3 +1,7 @@
+---
+description: "wiki/conventions/ 기준으로 코드를 검증한다. LLM 맥락 판단 + pylint/eslint 정적 분석 조합. PR 전 코드리뷰, 컨벤션 위반 탐지 시 사용."
+---
+
 # /code-lint — 컨벤션 기반 코드 검증 스킬
 
 LLM 기반 리뷰 + 정적 분석 도구를 조합해서 코드를 검증한다.

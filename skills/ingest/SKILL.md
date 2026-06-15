@@ -1,3 +1,7 @@
+---
+description: "raw/의 새 소스를 wiki/에 통합한다. 요약 페이지 생성, 기존 페이지 업데이트, 백링크·index·log 자동 갱신. raw/에 pending 파일이 생겼을 때 사용."
+---
+
 # /ingest — wiki 소스 반영 스킬
 
 `raw/` 에 새로운 소스가 추가됐을 때 실행한다.
