@@ -13,4 +13,4 @@
 | **UNCLEAR** | 결과 자체가 모호하거나 아직 미결정 | `references/unclear-path.md` |
 | **FENCE** | CLEAR/UNCLEAR 구분 불명확 | CLEAR로 처리 + 딱 하나의 질문만 |
 
-> 불확실하면 **CLEAR로** 빠진다. 잘못 침묵시키는 것이 하나 더 묻는 것보다 나쁘다.
+> CLEAR/UNCLEAR 경계가 애매할 때만 **FENCE**로 분류한다. 진짜 미결정 항목은 UNCLEAR 경로에 남긴다.

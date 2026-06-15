@@ -144,7 +144,7 @@ OmO와 project-scaffold를 비교하면:
 | 지식 관리 | 없음 | LLM Wiki (`wiki/` 레이어) |
 | devlog | 없음 | 커밋마다 자동 생성 (post-commit 훅) |
 | 컨벤션 강제 | 없음 | Hard(훅) + Soft(AGENT.md) 2-레이어 |
-| 하네스 중립성 | OpenCode 하네스 기반 (Claude Code는 호환 레이어 별도 제공) | `AGENT.md` 단일 소스 — Claude Code·Cursor·Windsurf·Codex 모두 동작 |
+| 하네스 중립성 | OpenCode 하네스 기반 (Claude Code는 호환 레이어 별도 제공) | `AGENT.md` 단일 소스 — Claude Code·Codex·Antigravity·Windsurf·Cursor·Continue.dev·Hermes·Aider 8종 동작 |
 
 OmO가 "무엇을 만들지"만 지정하면 에이전트 팀이 자율 분업해 처리하는 **에이전트 OS 레이어**라면, project-scaffold는 어떤 에이전트를 써도 팀 컨벤션·기록·검증이 기계적으로 보장되는 **프로젝트 지식 기반 레이어**다. 레이어가 달라 함께 쓸 수 있다.
 

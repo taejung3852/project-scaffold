@@ -21,8 +21,12 @@ echo "     (GitHub 템플릿으로 생성한 레포에서 실행)"
 echo "  2) 기존 프로젝트 — 이미 존재하는 프로젝트에 하네스 설치"
 echo "     (harness 파일 복사 후 초기화)"
 echo ""
-read -p "선택 [기본값: 1]: " _mode
+read -r -p "선택 [기본값: 1]: " _mode
 [ -z "$_mode" ] && _mode="1"
+if [ "$_mode" != "1" ] && [ "$_mode" != "2" ]; then
+  echo "❌ 잘못된 입력입니다. 1 또는 2만 입력해주세요."
+  exit 1
+fi
 
 # ════════════════════════════════════════════════
 # 대상 디렉토리 결정 & 파일 복사 (기존 프로젝트 모드)
@@ -139,13 +143,22 @@ if [ ! -d "$CUSTOM_HOOKS" ]; then
   exit 1
 fi
 
-cp "$CUSTOM_HOOKS/convention-check.sh" "$HOOKS_DIR/pre-commit"
-chmod +x "$HOOKS_DIR/pre-commit"
-echo "  ✅ pre-commit hook 설치 (convention-check)"
+_install_hook() {
+  local src="$1" dst="$2" label="$3"
+  if [ -f "$dst" ]; then
+    read -r -p "  ⚠️  기존 $(basename "$dst") hook이 있습니다. 덮어쓸까요? [y/N]: " _ow_hook
+    if [ "$_ow_hook" != "y" ] && [ "$_ow_hook" != "Y" ]; then
+      echo "  ⏭  $(basename "$dst") hook 건너뜀 (기존 유지)"
+      return
+    fi
+  fi
+  cp "$src" "$dst"
+  chmod +x "$dst"
+  echo "  ✅ $(basename "$dst") hook 설치 ($label)"
+}
 
-cp "$CUSTOM_HOOKS/devlog-auto.sh" "$HOOKS_DIR/post-commit"
-chmod +x "$HOOKS_DIR/post-commit"
-echo "  ✅ post-commit hook 설치 (devlog-auto)"
+_install_hook "$CUSTOM_HOOKS/convention-check.sh" "$HOOKS_DIR/pre-commit" "convention-check"
+_install_hook "$CUSTOM_HOOKS/devlog-auto.sh" "$HOOKS_DIR/post-commit" "devlog-auto"
 
 # ════════════════════════════════════════════════
 # wiki/ 디렉토리 구조 생성
@@ -355,31 +368,60 @@ _setup_continue() {
 _setup_hermes() {
   echo "  📦 Hermes 외부 스킬 디렉토리 등록 중..."
   mkdir -p "$HOME/.hermes"
-  config_file="$HOME/.hermes/config.yaml"
+  local config_file="$HOME/.hermes/config.yaml"
+  local skills_abs
   skills_abs="$(pwd)/skills"
-  if [ -f "$config_file" ]; then
-    if ! grep -qF "$skills_abs" "$config_file" 2>/dev/null; then
-      printf "\nskills:\n  external_dirs:\n    - %s\n" "$skills_abs" >> "$config_file"
-    fi
-  else
-    printf "skills:\n  external_dirs:\n    - %s\n" "$skills_abs" > "$config_file"
+  if grep -qF "$skills_abs" "$config_file" 2>/dev/null; then
+    echo "  ✅ Hermes: 이미 등록됨 — 건너뜀"
+    return
   fi
+  python3 - "$config_file" "$skills_abs" <<'PYEOF'
+import sys, re, os
+cfg, path = sys.argv[1], sys.argv[2]
+txt = open(cfg).read() if os.path.exists(cfg) else ""
+if re.search(r'^  external_dirs:', txt, re.MULTILINE):
+    txt = re.sub(r'(  external_dirs:(?:\n    - [^\n]+)*)',
+                 r'\1\n    - ' + path, txt)
+elif re.search(r'^skills:', txt, re.MULTILINE):
+    txt = re.sub(r'^(skills:)', r'\1\n  external_dirs:\n    - ' + path,
+                 txt, flags=re.MULTILINE)
+else:
+    if txt and not txt.endswith('\n'):
+        txt += '\n'
+    txt += 'skills:\n  external_dirs:\n    - ' + path + '\n'
+open(cfg, 'w').write(txt)
+PYEOF
   echo "  ✅ Hermes: ~/.hermes/config.yaml에 외부 스킬 경로 등록"
 }
 
 _setup_aider() {
   echo "  📦 Aider 설정 중..."
-  config_file=".aider.conf.yml"
-  if [ ! -f "$config_file" ]; then
-    printf "read:\n" > "$config_file"
-  fi
+  local config_file=".aider.conf.yml"
+  local new_skills=()
   for skill_dir in skills/*/; do
-    skill_file="${skill_dir}SKILL.md"
+    local skill_file="${skill_dir}SKILL.md"
     [ -f "$skill_file" ] || continue
-    if ! grep -qF "$skill_file" "$config_file" 2>/dev/null; then
-      printf "  - %s\n" "$skill_file" >> "$config_file"
-    fi
+    grep -qF "$skill_file" "$config_file" 2>/dev/null || new_skills+=("$skill_file")
   done
+  if [ ${#new_skills[@]} -eq 0 ]; then
+    echo "  ✅ Aider: 이미 등록됨 — 건너뜀"
+    return
+  fi
+  python3 - "$config_file" "${new_skills[@]}" <<'PYEOF'
+import sys, re, os
+cfg, *skills = sys.argv[1], *sys.argv[2:]
+txt = open(cfg).read() if os.path.exists(cfg) else ""
+items = ''.join(f'  - {s}\n' for s in skills)
+if re.search(r'^read:', txt, re.MULTILINE):
+    txt = re.sub(r'^(read:(?:\n  - [^\n]+)*)',
+                 lambda m: m.group(0) + '\n' + items.rstrip('\n'),
+                 txt, flags=re.MULTILINE)
+else:
+    if txt and not txt.endswith('\n'):
+        txt += '\n'
+    txt += 'read:\n' + items
+open(cfg, 'w').write(txt)
+PYEOF
   echo "  ✅ Aider: .aider.conf.yml read 목록에 스킬 추가"
 }
 
