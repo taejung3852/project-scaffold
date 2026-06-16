@@ -1,4 +1,8 @@
-# <img src="./assets/logo.png" width="36" alt="" /> project-scaffold
+<p align="center">
+  <img src="./assets/logo.png" width="200" alt="project-scaffold logo" />
+</p>
+
+# project-scaffold
 
 > An LLM Wiki-based development harness template for any project built together with an AI agent
 
@@ -9,7 +13,7 @@
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://python.org)
 ![Status](https://img.shields.io/badge/Status-🚧_In_Development-yellow)
 
-English | [한국어](README.kr.md)
+<p align="center">English | <a href="README.kr.md">한국어</a></p>
 
 ---
 

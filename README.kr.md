@@ -1,4 +1,8 @@
-# <img src="./assets/logo.png" width="36" alt="" /> project-scaffold
+<p align="center">
+  <img src="./assets/logo.png" width="200" alt="project-scaffold logo" />
+</p>
+
+# project-scaffold
 
 > AI 에이전트와 함께 개발하는 모든 프로젝트를 위한 LLM Wiki 기반 개발 하네스 템플릿
 
@@ -9,7 +13,7 @@
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://python.org)
 ![Status](https://img.shields.io/badge/Status-🚧_In_Development-yellow)
 
-한국어 | [English](README.md)
+<p align="center"><a href="README.md">English</a> | 한국어</p>
 
 ---
 
