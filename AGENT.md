@@ -17,6 +17,7 @@
 | `/wiki-lint` | wiki 품질 점검 | ✅ /setup 후 권장 |
 | `/dashboard` | 프로젝트 현황 대시보드 | ✅ /setup 후 권장 |
 | `/curate` | 스킬 진화 큐레이터 — 통합·아카이브·신규 제안 | ❌ 지금 실행 가능 |
+| `/report` | 진행 상황 리포트 생성 | ✅ /setup 후 권장 |
 
 ---
 
@@ -33,6 +34,17 @@
 - `/wiki-lint` → `skills/wiki-lint/SKILL.md`
 - `/dashboard` → `skills/dashboard/SKILL.md`
 - `/curate` → `skills/curate/SKILL.md`
+- `/report` → `skills/report/SKILL.md`
+
+---
+
+## 유지보수 자동 제안 (세션 시작 시 실행)
+
+**매 세션 시작 시** 아래 `스킬 진화 권고` 섹션을 읽는다. `post-commit` 훅이 `prompt_builder.py`를 실행해 자동 갱신하며, 실행 권장 항목이 있으면 개발 작업 전에 한 줄로 제안한다. 강요하지 않는다 — 사용자가 무시하면 바로 본 작업으로 넘어간다.
+
+**규칙:**
+- 권고 항목이 없거나 섹션을 읽지 못하면 조용히 건너뛴다
+- 한 세션에서 같은 제안을 두 번 하지 않는다
 
 ---
 
