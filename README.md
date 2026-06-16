@@ -627,6 +627,50 @@ graphify-out/
 
 ## Project Structure
 
+```mermaid
+graph TD
+    Root["📁 [your-project]"]
+    
+    %% Root files
+    Root --> AGENT["📄 AGENT.md<br/>(Agent Instructions)"]
+    Root --> SOUL["📄 SOUL.md<br/>(AI Assistant Persona)"]
+    Root --> CLAUDE["📄 CLAUDE.md<br/>(Claude Code Wrapper)"]
+    Root --> INIT["📄 init.sh<br/>(Initialization Script)"]
+
+    %% Directories
+    Root --> Scripts["📁 scripts/<br/>(Skill Evolution Python Layer)"]
+    Root --> Skills["📁 skills/<br/>(11 Agent Skills)"]
+    Root --> Hooks["📁 .hooks/<br/>(Git Hooks)"]
+    Root --> Wiki["📁 wiki/<br/>(Agent Knowledge Base)"]
+    Root --> Raw["📁 raw/<br/>(Immutable Raw Sources)"]
+    Root --> Graphify["📁 graphify-out/<br/>(Knowledge Graph)"]
+
+    %% scripts detail
+    Scripts --> S_Usage["skill_usage.py"]
+    Scripts --> S_Curator["curator.py"]
+    Scripts --> S_Prompt["prompt_builder.py"]
+    Scripts --> S_Manager["skill_manager.py"]
+
+    %% wiki detail
+    Wiki --> W_Conv["conventions/<br/>(Conventions)"]
+    Wiki --> W_Dec["decisions/<br/>(Tech Decisions)"]
+    Wiki --> W_Dev["devlog/<br/>(Dev Logs)"]
+    Wiki --> W_Obs[".obsidian/<br/>(Obsidian Config)"]
+
+    %% Styles (Harmonious sleek theme)
+    style Root fill:#1A365D,stroke:#4A5568,stroke-width:2px,color:#fff
+    style AGENT fill:#2B6CB0,stroke:#4A5568,color:#fff
+    style SOUL fill:#2B6CB0,stroke:#4A5568,color:#fff
+    style CLAUDE fill:#2B6CB0,stroke:#4A5568,color:#fff
+    style INIT fill:#4A5568,stroke:#2D3748,color:#fff
+    style Wiki fill:#2F855A,stroke:#2F855A,color:#fff
+    style Raw fill:#C05621,stroke:#C05621,color:#fff
+    style Graphify fill:#744210,stroke:#744210,color:#fff
+```
+
+<details>
+<summary>📂 Click to expand the full directory tree structure</summary>
+
 ```
 [your-project]/
 ├── AGENT.md                        ← per-project agent instructions (created/updated by /setup)
@@ -682,6 +726,8 @@ graphify-out/
 │
 └── graphify-out/                   ← Graphify output (graph.html · GRAPH_REPORT.md · graph.json)
 ```
+
+</details>
 
 ---
 
