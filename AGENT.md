@@ -19,6 +19,7 @@
 | `/curate` | 스킬 진화 큐레이터 — 통합·아카이브·신규 제안 | ❌ 지금 실행 가능 |
 | `/report` | 진행 상황 리포트 생성 | ✅ /setup 후 권장 |
 | `/help` | 하네스 사용 가이드 — 전체 스킬 목록·역할 분류·시작 흐름 | ❌ 지금 실행 가능 |
+| `/handoff` | 세션 종료/시작 시 작업 컨텍스트 저장·복원 | ❌ 지금 실행 가능 |
 
 ---
 
@@ -37,6 +38,7 @@
 - `/curate` → `skills/curate/SKILL.md`
 - `/report` → `skills/report/SKILL.md`
 - `/help` → `skills/help/SKILL.md`
+- `/handoff` → `skills/handoff/SKILL.md`
 
 ---
 
