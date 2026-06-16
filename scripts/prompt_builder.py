@@ -28,8 +28,11 @@ SKILL_PAIRS = [
 
 
 def load_usage() -> dict:
-    if USAGE_FILE.exists():
-        return json.loads(USAGE_FILE.read_text())
+    try:
+        if USAGE_FILE.exists():
+            return json.loads(USAGE_FILE.read_text())
+    except (json.JSONDecodeError, OSError):
+        pass
     return {"skills": {}}
 
 
