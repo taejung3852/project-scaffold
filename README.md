@@ -20,17 +20,17 @@
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Why We Built This](#why-we-built-this)
-3. [What is LLM Wiki?](#what-is-llm-wiki)
-4. [Inspired by Hermes Agent](#inspired-by-hermes-agent)
-5. [How It Differs from oh-my-openagent](#how-it-differs-from-oh-my-openagent)
-6. [Why Multi-Agent Compatibility Matters — The June 2026 Fable 5 Incident](#why-multi-agent-compatibility-matters--the-june-2026-fable-5-incident)
-7. [System Architecture](#system-architecture)
-8. [User vs System Role Separation](#user-vs-system-role-separation)
-9. [Core Features](#core-features)
-10. [Design Principles](#design-principles)
-11. [Tool Integrations](#tool-integrations)
-12. [Quick Start](#quick-start)
+2. [Quick Start](#quick-start)
+3. [Why We Built This](#why-we-built-this)
+4. [What is LLM Wiki?](#what-is-llm-wiki)
+5. [Inspired by Hermes Agent](#inspired-by-hermes-agent)
+6. [How It Differs from oh-my-openagent](#how-it-differs-from-oh-my-openagent)
+7. [Why Multi-Agent Compatibility Matters — The June 2026 Fable 5 Incident](#why-multi-agent-compatibility-matters--the-june-2026-fable-5-incident)
+8. [System Architecture](#system-architecture)
+9. [User vs System Role Separation](#user-vs-system-role-separation)
+10. [Core Features](#core-features)
+11. [Design Principles](#design-principles)
+12. [Tool Integrations](#tool-integrations)
 13. [Project Structure](#project-structure)
 14. [Current Status](#current-status)
 
@@ -43,6 +43,56 @@ project-scaffold is a GitHub template that builds an **AI agent harness** into a
 AI agents are powerful, but without context they repeat the same mistakes every time. They don't know your team's conventions, can't recall past decisions, and have no code-review baseline to work from. project-scaffold solves this with a **living wiki that the agent reads and follows on its own**.
 
 It's built on [the LLM Wiki pattern proposed by Andrej Karpathy](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f): without RAG, a markdown wiki owned and maintained by the agent becomes the single source of truth for the whole project.
+
+---
+
+## Quick Start
+
+### New Project
+
+```bash
+# 1. Create a new repo from the GitHub template, then clone it
+git clone https://github.com/[your-name]/[your-project].git
+cd [your-project]
+
+# 2. Initialize — pick mode 1 → choose your agent(s) → automatic setup
+bash init.sh
+
+# 3. Start the interview from inside your AI agent
+/setup
+```
+
+### Installing into an Existing Project
+
+```bash
+# 1. Clone project-scaffold (used here as an install tool)
+git clone https://github.com/taejung3852/project-scaffold.git
+cd project-scaffold
+
+# 2. Initialize — pick mode 2 → enter the existing project's path → choose agent(s)
+bash init.sh
+
+# 3. cd into the existing project and start the interview
+cd [your-existing-project]
+/setup
+```
+
+Running `init.sh` lets you choose which AI agent(s) to wire up. Multiple selections are supported, and entering `all` applies every one of them.
+
+| # | Agent | Skill path | Method |
+|---|---|---|---|
+| 1 | Claude Code | `.claude/skills/` | Symlink |
+| 2 | Codex CLI | `.agents/skills/` | Symlink |
+| 3 | Antigravity | `.agents/skills/` | Symlink (shares the path with Codex) |
+| 4 | Windsurf | `.windsurf/skills/` | Symlink |
+| 5 | Cursor | `.cursor/rules/` | Generates a converted `.mdc` |
+| 6 | Continue.dev | `.continue/prompts/` | Generates a converted `.md` |
+| 7 | Hermes | `~/.hermes/config.yaml` | Registers an external directory |
+| 8 | Aider | `.aider.conf.yml` | Adds to the `read:` list |
+
+To add or change agents later, just run `bash init.sh` again.
+
+`/setup` preserves whatever categories are already complete if you stop partway through — pick it back up later.
 
 ---
 
@@ -188,7 +238,7 @@ This is exactly why project-scaffold keeps `AGENT.md` as the single source of tr
 
 ## System Architecture
 
-Made up of 10 skills, 4 Python scripts, 2 git hooks, and a dual source of truth: `AGENT.md` + `SOUL.md`.
+Made up of 11 skills, 4 Python scripts, 2 git hooks, and a dual source of truth: `AGENT.md` + `SOUL.md`.
 
 ```text
 User
@@ -202,7 +252,8 @@ User
   ├─ /wiki-lint  ─── wiki/ quality check
   ├─ /dashboard  ─── project status dashboard
   ├─ /curate     ─── skill evolution curator (consolidate · archive · propose)
-  └─ /help       ─── full skill list, role classification, getting-started flow
+  ├─ /help       ─── full skill list, role classification, getting-started flow
+  └─ /handoff    ─── save/restore session context across sessions
 
 git commit
   ├─ pre-commit  ─── .hooks/convention-check.sh (security & static analysis)
@@ -431,7 +482,7 @@ Every SKILL.md includes a `skill_usage.py track` call, so running a skill update
 
 ### `/help` — Harness Usage Guide
 
-Once you're past 9 skills, it's easy to lose track of what to use and when. `/help` puts this project's current skill setup on one screen, with no need to go dig through the README.
+The more skills pile up, the easier it is to lose track of what to use and when. `/help` puts this project's current skill setup on one screen, with no need to go dig through the README.
 
 ```text
 Scan the skills/ directory for real (no hardcoding)
@@ -443,6 +494,23 @@ Scan the skills/ directory for real (no hardcoding)
 ```
 
 If a skill turns up that isn't in the classification table, it's flagged "🆕 unclassified" to prompt a README update — it never guesses a category on its own.
+
+---
+
+### `/handoff` — Session Handoff
+
+Compresses the current conversation into a resumable note for the next session (or a different agent), and saves it to `raw/handoffs/`.
+
+| Mode | Trigger | Action |
+|---|---|---|
+| save | `/handoff save [next-session focus]` | Summarize the conversation + git context, then save |
+| load | `/handoff load` | Restore the most recent save |
+| list | `/handoff list` | List saved handoffs |
+| clean | `/handoff clean [days]` | Remove handoffs older than N days (requires confirmation) |
+
+Content already captured elsewhere (PRs, commits, decision docs) is referenced by path/URL instead of being repeated. Sensitive information — API keys, tokens, PII — gets redacted before saving.
+
+Not picked up by `/ingest` — it's an operational record, not knowledge meant for the wiki.
 
 ---
 
@@ -556,56 +624,6 @@ graphify-out/
 
 ---
 
-## Quick Start
-
-### New Project
-
-```bash
-# 1. Create a new repo from the GitHub template, then clone it
-git clone https://github.com/[your-name]/[your-project].git
-cd [your-project]
-
-# 2. Initialize — pick mode 1 → choose your agent(s) → automatic setup
-bash init.sh
-
-# 3. Start the interview from inside your AI agent
-/setup
-```
-
-### Installing into an Existing Project
-
-```bash
-# 1. Clone project-scaffold (used here as an install tool)
-git clone https://github.com/taejung3852/project-scaffold.git
-cd project-scaffold
-
-# 2. Initialize — pick mode 2 → enter the existing project's path → choose agent(s)
-bash init.sh
-
-# 3. cd into the existing project and start the interview
-cd [your-existing-project]
-/setup
-```
-
-Running `init.sh` lets you choose which AI agent(s) to wire up. Multiple selections are supported, and entering `all` applies every one of them.
-
-| # | Agent | Skill path | Method |
-|---|---|---|---|
-| 1 | Claude Code | `.claude/skills/` | Symlink |
-| 2 | Codex CLI | `.agents/skills/` | Symlink |
-| 3 | Antigravity | `.agents/skills/` | Symlink (shares the path with Codex) |
-| 4 | Windsurf | `.windsurf/skills/` | Symlink |
-| 5 | Cursor | `.cursor/rules/` | Generates a converted `.mdc` |
-| 6 | Continue.dev | `.continue/prompts/` | Generates a converted `.md` |
-| 7 | Hermes | `~/.hermes/config.yaml` | Registers an external directory |
-| 8 | Aider | `.aider.conf.yml` | Adds to the `read:` list |
-
-To add or change agents later, just run `bash init.sh` again.
-
-`/setup` preserves whatever categories are already complete if you stop partway through — pick it back up later.
-
----
-
 ## Project Structure
 
 ```
@@ -634,6 +652,7 @@ To add or change agents later, just run `bash init.sh` again.
 │   ├── dashboard/SKILL.md          ← dashboard rendering
 │   ├── curate/SKILL.md             ← skill evolution curator (LLM judgment layer)
 │   ├── help/SKILL.md               ← harness usage guide (skill list, getting-started flow)
+│   ├── handoff/SKILL.md            ← save/restore session context across sessions
 │   ├── .usage.json                 ← skill usage tracking data
 │   └── .archive/                   ← storage for skills unused for 90+ days
 │
@@ -669,7 +688,7 @@ To add or change agents later, just run `bash init.sh` again.
 
 | Item | Status |
 |---|---|
-| 10 skill files (setup·capture·ingest·query·report·code-lint·wiki-lint·dashboard·curate·help) | ✅ Done |
+| 11 skill files (setup·capture·ingest·query·report·code-lint·wiki-lint·dashboard·curate·help·handoff) | ✅ Done |
 | ambiguity-check sub-skill | ✅ Done |
 | 2 git hooks (convention-check·devlog-auto) | ✅ Done |
 | init.sh — multi-agent selection + automatic path setup (8 agents supported) | ✅ Done |
@@ -679,7 +698,7 @@ To add or change agents later, just run `bash init.sh` again.
 | 4 skill-evolution Python layers (skill_usage·curator·prompt_builder·skill_manager) | ✅ Done |
 | `.obsidian/` folder (Obsidian color groups pre-configured) | ✅ Done |
 | Graphify integration (`pip install graphifyy` + `graphify install`) | ✅ Done |
-| AutoDoc MAS v2 dogfooding | 🔜 Planned |
+| AutoDoc MAS v2 dogfooding | 🚧 In Progress |
 
 ---
 
