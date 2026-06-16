@@ -627,6 +627,50 @@ graphify-out/
 
 ## 프로젝트 구조
 
+```mermaid
+graph TD
+    Root["📁 [your-project]"]
+    
+    %% 루트 파일들
+    Root --> AGENT["📄 AGENT.md<br/>(에이전트 지시서)"]
+    Root --> SOUL["📄 SOUL.md<br/>(AI 비서 페르소나)"]
+    Root --> CLAUDE["📄 CLAUDE.md<br/>(Claude Code 래퍼)"]
+    Root --> INIT["📄 init.sh<br/>(초기화 스크립트)"]
+
+    %% 디렉토리들
+    Root --> Scripts["📁 scripts/<br/>(스킬 진화 Python 레이어)"]
+    Root --> Skills["📁 skills/<br/>(11개 에이전트 스킬)"]
+    Root --> Hooks["📁 .hooks/<br/>(Git Hooks)"]
+    Root --> Wiki["📁 wiki/<br/>(에이전트 지식 베이스)"]
+    Root --> Raw["📁 raw/<br/>(불변 원본 소스)"]
+    Root --> Graphify["📁 graphify-out/<br/>(지식 그래프)"]
+
+    %% scripts 상세
+    Scripts --> S_Usage["skill_usage.py"]
+    Scripts --> S_Curator["curator.py"]
+    Scripts --> S_Prompt["prompt_builder.py"]
+    Scripts --> S_Manager["skill_manager.py"]
+
+    %% wiki 상세
+    Wiki --> W_Conv["conventions/<br/>(컨벤션)"]
+    Wiki --> W_Dec["decisions/<br/>(기술 결정)"]
+    Wiki --> W_Dev["devlog/<br/>(개발 일지)"]
+    Wiki --> W_Obs[".obsidian/<br/>(Obsidian 설정)"]
+
+    %% 스타일 정의 (Harmonious sleek theme)
+    style Root fill:#1A365D,stroke:#4A5568,stroke-width:2px,color:#fff
+    style AGENT fill:#2B6CB0,stroke:#4A5568,color:#fff
+    style SOUL fill:#2B6CB0,stroke:#4A5568,color:#fff
+    style CLAUDE fill:#2B6CB0,stroke:#4A5568,color:#fff
+    style INIT fill:#4A5568,stroke:#2D3748,color:#fff
+    style Wiki fill:#2F855A,stroke:#2F855A,color:#fff
+    style Raw fill:#C05621,stroke:#C05621,color:#fff
+    style Graphify fill:#744210,stroke:#744210,color:#fff
+```
+
+<details>
+<summary>📂 전체 디렉토리 트리 구조 보기</summary>
+
 ```
 [your-project]/
 ├── AGENT.md                        ← 프로젝트별 에이전트 지시서 (/setup이 생성·갱신)
@@ -682,6 +726,8 @@ graphify-out/
 │
 └── graphify-out/                   ← Graphify 출력 (graph.html · GRAPH_REPORT.md · graph.json)
 ```
+
+</details>
 
 ---
 
