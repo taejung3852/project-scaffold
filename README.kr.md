@@ -366,6 +366,7 @@ raw/ 파일 읽기
   → wiki/index.md 갱신
   → wiki/log.md 기록
   → raw/ ingest_status → "✅ done"
+  → Graphify 설치돼 있으면 `graphify update wiki/` 실행 (미설치면 설치 여부 안내 — 조용히 건너뛰지 않음)
 ```
 
 모순 발견 시 덮어쓰지 않고 양쪽 소스를 인용하여 `> ⚠️ 모순` 블록으로 표시한다.
@@ -377,7 +378,8 @@ raw/ 파일 읽기
 "테스트 파일 어디에 두지?", "이 패키지 써도 돼?" 같은 질문에 wiki를 근거로 답한다.
 
 ```text
-wiki/index.md 읽기 (전체 페이지 파악)
+graphify-out/graph.json 먼저 확인 — 있으면 그래프로 관련 문서 범위부터 좁힘 (미설치면 설치 여부 안내 — 조용히 건너뛰지 않음)
+  → wiki/index.md 읽기 (폴백, 전체 페이지 파악)
   → 관련 pages 읽기 (conventions → decisions → devlog 우선순위)
   → [[wikilink]] 인용 포함 답변 합성
   → 필요 시 raw/ 보충 참조
@@ -628,7 +630,8 @@ graphify-out/
 ## 프로젝트 구조
 
 ```mermaid
-graph TD
+%%{init: {'flowchart': {'rankSpacing': 90}}}%%
+graph LR
     Root["📁 [your-project]"]
     
     %% 루트 파일들

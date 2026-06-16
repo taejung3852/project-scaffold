@@ -92,6 +92,21 @@ ingest_status: "✅ done"
 
 ---
 
+## Step 3 — Graphify 그래프 갱신
+
+wiki/ 반영이 끝나면 Graphify 설치 여부를 확인한다.
+
+```bash
+command -v graphify
+```
+
+- **설치되어 있으면**: `graphify update wiki/` 를 실행해 그래프를 최신 wiki/ 상태로 동기화한다
+- **설치 안 되어 있으면**: 조용히 건너뛰지 않는다. 안내한다 — "Graphify가 설치되어 있지 않아요. wiki/ 쿼리 토큰을 최대 71.5배 절감할 수 있는 도구인데, 설치할까요? (`pip install graphifyy && graphify install`)"
+  - 설치를 원하면: 안내한 명령어로 설치 후 `graphify update wiki/` 실행
+  - 원치 않으면: 그래프 갱신 없이 ingest를 종료 (wiki/ 반영 자체는 이미 완료된 상태)
+
+---
+
 ## 규칙
 
 | 항목 | 규칙 |
@@ -101,3 +116,4 @@ ingest_status: "✅ done"
 | 모순 처리 | 덮어쓰지 말고 양쪽 인용 + ⚠️ 블록 |
 | 기존 페이지 우선 | 신규 생성보다 기존 업데이트를 먼저 검토 |
 | index.md | 새 페이지 생성 시 반드시 갱신 |
+| graphify 갱신 | 미설치 시 건너뛰지 않고 설치 여부 확인 |
