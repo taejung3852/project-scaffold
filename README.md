@@ -366,6 +366,7 @@ Read the raw/ file
   → refresh wiki/index.md
   → log it in wiki/log.md
   → flip raw/ ingest_status → "✅ done"
+  → run `graphify update wiki/` if Graphify is installed (prompts to install if it isn't — never skips silently)
 ```
 
 When a contradiction turns up, nothing gets overwritten — both sources are cited and flagged with a `> ⚠️ Contradiction` block.
@@ -377,7 +378,8 @@ When a contradiction turns up, nothing gets overwritten — both sources are cit
 Answers questions like "where do test files go?" or "am I allowed to use this package?" by grounding the answer in the wiki.
 
 ```text
-Read wiki/index.md (get the full page map)
+Check graphify-out/graph.json first — if present, narrow down to related docs through the graph (prompts to install Graphify if it's missing — never skips silently)
+  → read wiki/index.md (get the full page map) as the fallback
   → read the relevant pages (priority order: conventions → decisions → devlog)
   → synthesize an answer with [[wikilink]] citations
   → fall back to raw/ for extra detail if needed
@@ -628,7 +630,8 @@ graphify-out/
 ## Project Structure
 
 ```mermaid
-graph TD
+%%{init: {'flowchart': {'rankSpacing': 90}}}%%
+graph LR
     Root["📁 [your-project]"]
     
     %% Root files
