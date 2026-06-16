@@ -1,4 +1,4 @@
-# project-scaffold
+# <img src="./assets/logo.png" width="36" alt="" /> project-scaffold
 
 > AI 에이전트와 함께 개발하는 모든 프로젝트를 위한 LLM Wiki 기반 개발 하네스 템플릿
 

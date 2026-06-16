@@ -1,4 +1,4 @@
-# project-scaffold
+# <img src="./assets/logo.png" width="36" alt="" /> project-scaffold
 
 > An LLM Wiki-based development harness template for any project built together with an AI agent
 
