@@ -20,17 +20,17 @@
 ## 목차
 
 1. [개요](#개요)
-2. [왜 만들었나](#왜-만들었나)
-3. [LLM Wiki란?](#llm-wiki란)
-4. [Hermes Agent에서 영감을 받다](#hermes-agent에서-영감을-받다)
-5. [oh-my-openagent와의 차별점](#oh-my-openagent와의-차별점)
-6. [멀티 에이전트 호환이 필요한 이유 — 2026년 6월 Fable 5 사태](#멀티-에이전트-호환이-필요한-이유--2026년-6월-fable-5-사태)
-7. [시스템 구조](#시스템-구조)
-8. [사용자 vs 시스템 역할 분리](#사용자-vs-시스템-역할-분리)
-9. [핵심 기능](#핵심-기능)
-10. [설계 원칙](#설계-원칙)
-11. [도구 연동](#도구-연동)
-12. [빠른 시작](#빠른-시작)
+2. [빠른 시작](#빠른-시작)
+3. [왜 만들었나](#왜-만들었나)
+4. [LLM Wiki란?](#llm-wiki란)
+5. [Hermes Agent에서 영감을 받다](#hermes-agent에서-영감을-받다)
+6. [oh-my-openagent와의 차별점](#oh-my-openagent와의-차별점)
+7. [멀티 에이전트 호환이 필요한 이유 — 2026년 6월 Fable 5 사태](#멀티-에이전트-호환이-필요한-이유--2026년-6월-fable-5-사태)
+8. [시스템 구조](#시스템-구조)
+9. [사용자 vs 시스템 역할 분리](#사용자-vs-시스템-역할-분리)
+10. [핵심 기능](#핵심-기능)
+11. [설계 원칙](#설계-원칙)
+12. [도구 연동](#도구-연동)
 13. [프로젝트 구조](#프로젝트-구조)
 14. [현재 상태](#현재-상태)
 
@@ -43,6 +43,56 @@ project-scaffold는 소프트웨어 개발 프로젝트에 **AI 에이전트 하
 AI 에이전트는 강력하지만 컨텍스트가 없으면 매번 같은 실수를 반복한다. 팀 컨벤션을 모르고 지난 결정을 기억하지 못하며 코드리뷰 기준도 없다. project-scaffold는 이 문제를 **에이전트가 스스로 읽고 따르는 살아있는 wiki**로 해결한다.
 
 [Andrej Karpathy가 제안한 LLM Wiki 패턴](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)을 기반으로 하며, RAG 없이 에이전트가 소유·유지하는 마크다운 wiki가 프로젝트 전체의 단일 진실 소스가 된다.
+
+---
+
+## 빠른 시작
+
+### 새 프로젝트
+
+```bash
+# 1. GitHub 템플릿으로 새 레포 생성 후 클론
+git clone https://github.com/[your-name]/[your-project].git
+cd [your-project]
+
+# 2. 초기화 — 모드 1 선택 → 에이전트 선택 → 자동 세팅
+bash init.sh
+
+# 3. AI 에이전트에서 인터뷰 시작
+/setup
+```
+
+### 기존 프로젝트에 설치
+
+```bash
+# 1. project-scaffold 클론 (설치 도구로 사용)
+git clone https://github.com/taejung3852/project-scaffold.git
+cd project-scaffold
+
+# 2. 초기화 — 모드 2 선택 → 기존 프로젝트 경로 입력 → 에이전트 선택
+bash init.sh
+
+# 3. 기존 프로젝트 디렉토리로 이동 후 인터뷰
+cd [your-existing-project]
+/setup
+```
+
+`init.sh` 실행 시 사용할 AI 에이전트를 선택한다. 복수 선택 가능하며 `all` 입력 시 전체 적용된다.
+
+| 번호 | 에이전트 | 스킬 경로 | 방식 |
+|---|---|---|---|
+| 1 | Claude Code | `.claude/skills/` | 심링크 |
+| 2 | Codex CLI | `.agents/skills/` | 심링크 |
+| 3 | Antigravity | `.agents/skills/` | 심링크 (Codex와 경로 공유) |
+| 4 | Windsurf | `.windsurf/skills/` | 심링크 |
+| 5 | Cursor | `.cursor/rules/` | `.mdc` 변환 생성 |
+| 6 | Continue.dev | `.continue/prompts/` | `.md` 변환 생성 |
+| 7 | Hermes | `~/.hermes/config.yaml` | 외부 디렉토리 등록 |
+| 8 | Aider | `.aider.conf.yml` | `read:` 목록 추가 |
+
+나중에 에이전트를 추가하거나 바꾸고 싶으면 `bash init.sh`를 다시 실행하면 된다.
+
+`/setup`은 중간에 중단해도 완료된 카테고리가 보존된다. 나중에 이어서 진행하면 된다.
 
 ---
 
@@ -188,7 +238,7 @@ project-scaffold가 `AGENT.md`를 모든 에이전트의 단일 진실 소스로
 
 ## 시스템 구조
 
-10개의 스킬, 4개의 Python 스크립트, 2개의 git hook, 그리고 `AGENT.md`·`SOUL.md` 이중 진실 소스로 구성된다.
+11개의 스킬, 4개의 Python 스크립트, 2개의 git hook, 그리고 `AGENT.md`·`SOUL.md` 이중 진실 소스로 구성된다.
 
 ```text
 사용자
@@ -202,7 +252,8 @@ project-scaffold가 `AGENT.md`를 모든 에이전트의 단일 진실 소스로
   ├─ /wiki-lint  ─── wiki/ 품질 점검
   ├─ /dashboard  ─── 프로젝트 현황 대시보드
   ├─ /curate     ─── 스킬 진화 큐레이터 (통합·아카이브·신규 제안)
-  └─ /help       ─── 전체 스킬 목록·역할 분류·시작 흐름 안내
+  ├─ /help       ─── 전체 스킬 목록·역할 분류·시작 흐름 안내
+  └─ /handoff    ─── 세션 컨텍스트 저장·복원
 
 git commit
   ├─ pre-commit  ─── .hooks/convention-check.sh (보안·정적 분석)
@@ -432,7 +483,7 @@ python3 scripts/curator.py report   ← Python: 사용 데이터 기반 stale/ar
 
 ### `/help` — 하네스 사용 가이드
 
-스킬이 9개를 넘어가면 어떤 걸 언제 써야 하는지 헷갈리기 쉽다. `/help`는 매번 README를 찾아볼 필요 없이 지금 이 프로젝트의 스킬 구성을 한 화면에 보여준다.
+스킬이 늘어날수록 어떤 걸 언제 써야 하는지 헷갈리기 쉽다. `/help`는 매번 README를 찾아볼 필요 없이 지금 이 프로젝트의 스킬 구성을 한 화면에 보여준다.
 
 ```text
 skills/ 디렉토리 실제 스캔 (하드코딩 없음)
@@ -444,6 +495,23 @@ skills/ 디렉토리 실제 스캔 (하드코딩 없음)
 ```
 
 분류 표에 없는 새 스킬이 발견되면 "🆕 미분류"로 표시해 README 갱신을 유도한다 — 임의로 카테고리를 추정하지 않는다.
+
+---
+
+### `/handoff` — 세션 인계
+
+현재 대화를 다음 세션(또는 다른 에이전트)이 이어받을 수 있도록 압축해서 `raw/handoffs/`에 저장한다.
+
+| 모드 | 트리거 | 동작 |
+|---|---|---|
+| save | `/handoff save [다음 세션 목표]` | 대화 요약 + git 컨텍스트 저장 |
+| load | `/handoff load` | 가장 최근 저장본 복원 |
+| list | `/handoff list` | 저장된 인계 목록 표시 |
+| clean | `/handoff clean [N일]` | N일 지난 저장본 삭제 (확인 필수) |
+
+PR·커밋·결정 문서에 이미 있는 내용은 경로/URL로만 참조하고 다시 풀어 쓰지 않는다. API 키·토큰·개인정보는 저장 전에 검열한다.
+
+`/ingest` 대상이 아니다 — 운영 기록일 뿐 wiki에 통합할 지식이 아니다.
 
 ---
 
@@ -557,56 +625,6 @@ graphify-out/
 
 ---
 
-## 빠른 시작
-
-### 새 프로젝트
-
-```bash
-# 1. GitHub 템플릿으로 새 레포 생성 후 클론
-git clone https://github.com/[your-name]/[your-project].git
-cd [your-project]
-
-# 2. 초기화 — 모드 1 선택 → 에이전트 선택 → 자동 세팅
-bash init.sh
-
-# 3. AI 에이전트에서 인터뷰 시작
-/setup
-```
-
-### 기존 프로젝트에 설치
-
-```bash
-# 1. project-scaffold 클론 (설치 도구로 사용)
-git clone https://github.com/taejung3852/project-scaffold.git
-cd project-scaffold
-
-# 2. 초기화 — 모드 2 선택 → 기존 프로젝트 경로 입력 → 에이전트 선택
-bash init.sh
-
-# 3. 기존 프로젝트 디렉토리로 이동 후 인터뷰
-cd [your-existing-project]
-/setup
-```
-
-`init.sh` 실행 시 사용할 AI 에이전트를 선택한다. 복수 선택 가능하며 `all` 입력 시 전체 적용된다.
-
-| 번호 | 에이전트 | 스킬 경로 | 방식 |
-|---|---|---|---|
-| 1 | Claude Code | `.claude/skills/` | 심링크 |
-| 2 | Codex CLI | `.agents/skills/` | 심링크 |
-| 3 | Antigravity | `.agents/skills/` | 심링크 (Codex와 경로 공유) |
-| 4 | Windsurf | `.windsurf/skills/` | 심링크 |
-| 5 | Cursor | `.cursor/rules/` | `.mdc` 변환 생성 |
-| 6 | Continue.dev | `.continue/prompts/` | `.md` 변환 생성 |
-| 7 | Hermes | `~/.hermes/config.yaml` | 외부 디렉토리 등록 |
-| 8 | Aider | `.aider.conf.yml` | `read:` 목록 추가 |
-
-나중에 에이전트를 추가하거나 바꾸고 싶으면 `bash init.sh`를 다시 실행하면 된다.
-
-`/setup`은 중간에 중단해도 완료된 카테고리가 보존된다. 나중에 이어서 진행하면 된다.
-
----
-
 ## 프로젝트 구조
 
 ```
@@ -635,6 +653,7 @@ cd [your-existing-project]
 │   ├── dashboard/SKILL.md          ← 대시보드 렌더링
 │   ├── curate/SKILL.md             ← 스킬 진화 큐레이터 (LLM 판단 레이어)
 │   ├── help/SKILL.md               ← 하네스 사용 가이드 (스킬 목록·시작 흐름)
+│   ├── handoff/SKILL.md            ← 세션 컨텍스트 저장·복원
 │   ├── .usage.json                 ← 스킬 사용 추적 데이터
 │   └── .archive/                   ← 90일 미사용 스킬 보관소
 │
@@ -670,7 +689,7 @@ cd [your-existing-project]
 
 | 항목 | 상태 |
 |---|---|
-| 스킬 파일 10개 (setup·capture·ingest·query·report·code-lint·wiki-lint·dashboard·curate·help) | ✅ 완료 |
+| 스킬 파일 11개 (setup·capture·ingest·query·report·code-lint·wiki-lint·dashboard·curate·help·handoff) | ✅ 완료 |
 | ambiguity-check 서브스킬 | ✅ 완료 |
 | git hook 2개 (convention-check·devlog-auto) | ✅ 완료 |
 | init.sh — 에이전트 다중 선택 + 경로 자동 세팅 (8종 지원) | ✅ 완료 |
@@ -680,7 +699,7 @@ cd [your-existing-project]
 | 스킬 진화 Python 레이어 4개 (skill_usage·curator·prompt_builder·skill_manager) | ✅ 완료 |
 | `.obsidian/` 폴더 (Obsidian 색상 그룹 pre-configured) | ✅ 완료 |
 | Graphify 통합 (`pip install graphifyy` + `graphify install`) | ✅ 완료 |
-| AutoDoc MAS v2 dogfooding | 🔜 예정 |
+| AutoDoc MAS v2 dogfooding | 🚧 진행 중 |
 
 ---
 
