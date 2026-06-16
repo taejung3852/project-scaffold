@@ -31,8 +31,8 @@ for d in skills/*/; do [ -f "$d/SKILL.md" ] && echo "${d%/}"; done
 
 | 스킬 | 카테고리 |
 |---|---|
-| setup, capture, ingest, query, report, code-lint, help | 직접 실행 |
-| dashboard, wiki-lint, curate | 에이전트 제안 · 사용자 확인 |
+| setup, capture, ingest, query, report, code-lint, help, handoff | 직접 실행 |
+| dashboard, wiki-lint, curate, code-lint | 에이전트 제안 · 사용자 확인 |
 
 Step 1에서 발견했지만 이 표에 없는 스킬은 **"🆕 미분류"**로 별도 표시한다 (임의로 카테고리를 추정하지 않는다).
 

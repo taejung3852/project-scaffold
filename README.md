@@ -244,6 +244,7 @@ You don't need to remember or track any of these yourself. At the start of a ses
 | `/dashboard` | 7+ days since the last refresh |
 | `/wiki-lint` | 14+ days since the last run |
 | `/curate` | Stale skills piling up, or 50+ total invocations |
+| `/code-lint` | Push/PR intent detected and not yet run on this change |
 
 ### What the System Handles Automatically
 
