@@ -233,6 +233,7 @@ SOUL.md   ─── developer's AI assistant persona (project-agnostic, permanen
 | `/report` | Generate meeting notes / ADR / sprint summaries | As needed |
 | `/code-lint` | Convention-based code review | Before a PR |
 | `/help` | Check the skill list, role classification, getting-started flow | When new to the harness, or unsure what to use |
+| `/handoff` | Save/restore session context across sessions | When ending or starting a session |
 
 ### Agent Suggests, User Confirms Before Running
 
