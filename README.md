@@ -1,6 +1,6 @@
 # project-scaffold
 
-> AI 에이전트와 함께 개발하는 모든 프로젝트를 위한 LLM Wiki 기반 개발 하네스 템플릿
+> An LLM Wiki-based development harness template for any project built together with an AI agent
 
 [![Harness Engineering](https://img.shields.io/badge/Harness-Engineering-1D3461?logoColor=white)](./AGENT.md)
 [![Shell](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -9,628 +9,679 @@
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://python.org)
 ![Status](https://img.shields.io/badge/Status-🚧_In_Development-yellow)
 
----
-
-## 목차
-
-1. [개요](#개요)
-2. [왜 만들었나](#왜-만들었나)
-3. [LLM Wiki란?](#llm-wiki란)
-4. [Hermes Agent에서 영감을 받다](#hermes-agent에서-영감을-받다)
-5. [oh-my-openagent와의 차별점](#oh-my-openagent와의-차별점)
-6. [시스템 구조](#시스템-구조)
-7. [사용자 vs 시스템 역할 분리](#사용자-vs-시스템-역할-분리)
-8. [핵심 기능](#핵심-기능)
-9. [설계 원칙](#설계-원칙)
-10. [도구 연동](#도구-연동)
-11. [빠른 시작](#빠른-시작)
-12. [프로젝트 구조](#프로젝트-구조)
-13. [현재 상태](#현재-상태)
+English | [한국어](README.kr.md)
 
 ---
 
-## 개요
+## Table of Contents
 
-project-scaffold는 소프트웨어 개발 프로젝트에 **AI 에이전트 하네스**를 구축하는 GitHub 템플릿이다.
-
-AI 에이전트는 강력하지만 컨텍스트가 없으면 매번 같은 실수를 반복한다. 팀 컨벤션을 모르고 지난 결정을 기억하지 못하며 코드리뷰 기준도 없다. project-scaffold는 이 문제를 **에이전트가 스스로 읽고 따르는 살아있는 wiki**로 해결한다.
-
-[Andrej Karpathy가 제안한 LLM Wiki 패턴](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)을 기반으로 하며, RAG 없이 에이전트가 소유·유지하는 마크다운 wiki가 프로젝트 전체의 단일 진실 소스가 된다.
-
----
-
-## 왜 만들었나
-
-### 문제 정의
-
-AI 코딩 에이전트를 프로젝트에 도입할 때 가장 큰 장벽은 **"에이전트가 우리 팀처럼 행동하게 만드는 것"**이다.
-
-- 커밋 메시지 형식이 매번 다르다
-- 아키텍처 레이어 규칙을 무시한다
-- 테스트 없이 구현 코드부터 짠다
-- 지난 회의에서 결정한 내용을 알 방법이 없다
-
-프롬프트로 매번 설명하는 건 확장되지 않는다. 대화가 끝나면 사라진다.
-
-### 해결 방안
-
-팀 컨벤션을 **구조화된 wiki로 문서화**하고 에이전트가 작업마다 해당 wiki를 읽고 따르게 한다. `/setup` 인터뷰로 프로젝트 고유의 규칙을 정의하면 git hook으로 위반을 차단하며 devlog가 자동으로 쌓인다.
-
-> **핵심 아이디어**: 에이전트에게 규칙을 외우게 하는 대신, 에이전트가 언제든 꺼내 읽는 장소를 만든다.
+1. [Overview](#overview)
+2. [Why We Built This](#why-we-built-this)
+3. [What is LLM Wiki?](#what-is-llm-wiki)
+4. [Inspired by Hermes Agent](#inspired-by-hermes-agent)
+5. [How It Differs from oh-my-openagent](#how-it-differs-from-oh-my-openagent)
+6. [Why Multi-Agent Compatibility Matters — The June 2026 Fable 5 Incident](#why-multi-agent-compatibility-matters--the-june-2026-fable-5-incident)
+7. [System Architecture](#system-architecture)
+8. [User vs System Role Separation](#user-vs-system-role-separation)
+9. [Core Features](#core-features)
+10. [Design Principles](#design-principles)
+11. [Tool Integrations](#tool-integrations)
+12. [Quick Start](#quick-start)
+13. [Project Structure](#project-structure)
+14. [Current Status](#current-status)
 
 ---
 
-## LLM Wiki란?
+## Overview
 
-LLM Wiki는 Andrej Karpathy가 제안한 지식 관리 패턴이다. ([원문 Gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f))
+project-scaffold is a GitHub template that builds an **AI agent harness** into a software development project.
 
-### 구조
+AI agents are powerful, but without context they repeat the same mistakes every time. They don't know your team's conventions, can't recall past decisions, and have no code-review baseline to work from. project-scaffold solves this with a **living wiki that the agent reads and follows on its own**.
 
-3개의 레이어로 구성된다:
+It's built on [the LLM Wiki pattern proposed by Andrej Karpathy](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f): without RAG, a markdown wiki owned and maintained by the agent becomes the single source of truth for the whole project.
 
-| 레이어 | 경로 | 소유자 | 역할 |
+---
+
+## Why We Built This
+
+### The Problem
+
+The biggest barrier to adopting an AI coding agent on a real project is **"getting the agent to act like a member of your team."**
+
+- Commit message format is different every time
+- Architecture layer rules get ignored
+- Implementation code gets written before any tests exist
+- There's no way for the agent to know what was decided in the last meeting
+
+Explaining all of this in the prompt every single time doesn't scale. It disappears the moment the conversation ends.
+
+### The Solution
+
+Document team conventions as a **structured wiki**, and have the agent read and follow that wiki on every task. Run the `/setup` interview to define the project's own rules, and a git hook blocks violations while devlogs accumulate automatically.
+
+> **Core idea**: instead of making the agent memorize the rules, give it a place it can always go to read them.
+
+---
+
+## What is LLM Wiki?
+
+LLM Wiki is a knowledge-management pattern proposed by Andrej Karpathy. ([Original Gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f))
+
+### Structure
+
+It's made of three layers:
+
+| Layer | Path | Owner | Role |
 |---|---|---|---|
-| **원본** | `raw/` | 사람 | 불변 소스. 회의록·결정사항·기사·코드 스니펫 등 |
-| **Wiki** | `wiki/` | AI 에이전트 | 원본을 읽고 컴파일한 구조화된 지식 |
-| **Schema** | `AGENT.md` | 사람+AI | 에이전트 동작 규칙 정의 |
+| **Raw** | `raw/` | Human | Immutable source material — meeting notes, decisions, articles, code snippets, etc. |
+| **Wiki** | `wiki/` | AI agent | Structured knowledge compiled from the raw layer |
+| **Schema** | `AGENT.md` | Human + AI | Defines the rules for agent behavior |
 
-### 3가지 오퍼레이션
+### Three Operations
 
-- **Ingest**: 새 원본 추가 → 에이전트가 요약 페이지 생성, 기존 wiki 페이지 업데이트, 상호참조(wikilink) 유지
-- **Query**: wiki 페이지 탐색 → 종합 답변 제공 → 가치 있는 결과는 `wiki/synthesis/`에 저장
-- **Lint**: 주기적 건강 점검 → 고아 페이지·깨진 링크·모순·stale 정보 탐지
+- **Ingest**: add a new raw source → the agent generates a summary page, updates existing wiki pages, and maintains cross-references (wikilinks)
+- **Query**: traverse wiki pages → synthesize an answer → valuable results get saved to `wiki/synthesis/`
+- **Lint**: periodic health check → detect orphan pages, broken links, contradictions, stale information
 
-### RAG 대신 LLM Wiki를 쓰는 이유
+### Why LLM Wiki Instead of RAG
 
-> *"원본 문서는 매번 재검색되지 않는다. 지식이 컴파일되어 한 번 유지되고, 쿼리마다 다시 도출되지 않는다."*
+> *"The source documents aren't re-retrieved every time. The knowledge gets compiled and maintained once, instead of being re-derived on every query."*
 > — Andrej Karpathy
 
-RAG는 쿼리마다 원본 문서를 벡터 검색하고 LLM이 매번 같은 추론을 반복한다. LLM Wiki는 이미 구조화된 wiki에서 답변한다. 추론이 한 번만 일어나고, 그 결과가 wiki에 축적된다.
+RAG vector-searches the source documents on every query, and the LLM repeats the same reasoning each time. LLM Wiki answers from a wiki that's already structured — the reasoning happens once, and the result accumulates in the wiki.
 
 | | RAG | LLM Wiki |
 |---|---|---|
-| 지식 저장 | 벡터 DB (임베딩) | 마크다운 파일 (읽을 수 있는 텍스트) |
-| 추론 시점 | 쿼리마다 | Ingest 시 한 번 |
-| 상호참조 | 유사도 기반 | 명시적 `[[wikilink]]` |
-| 유지보수 | 재인덱싱 필요 | `/wiki-lint` 으로 점검 |
-| 인프라 | Vector DB 서버 | Git 저장소 |
+| Knowledge storage | Vector DB (embeddings) | Markdown files (human-readable text) |
+| When reasoning happens | On every query | Once, at ingest time |
+| Cross-referencing | Similarity-based | Explicit `[[wikilink]]` |
+| Maintenance | Requires re-indexing | Checked via `/wiki-lint` |
+| Infrastructure | Vector DB server | Git repository |
 
-### 왜 project-scaffold에 채택했나
+### Why project-scaffold Adopted It
 
-- 소프트웨어 팀의 컨벤션·결정·회의록은 한번 정리되면 자주 바뀌지 않는다 → RAG의 재검색 이점이 없음
-- 에이전트가 컨벤션 wiki를 직접 읽고 따르는 것이 벡터 검색으로 찾는 것보다 정확하고 신뢰도가 높다
-- Git으로 버전관리되어 히스토리 추적과 팀 협업이 무료로 따라온다
-- Vector DB 없이 마크다운 파일만으로 동작하므로 어떤 AI 에이전트에도 에코시스템 종속 없이 적용된다
+- A software team's conventions, decisions, and meeting notes don't change much once written down → RAG's re-retrieval advantage doesn't really apply
+- An agent reading the conventions wiki directly is more accurate and trustworthy than something surfaced via vector similarity
+- Git versioning gives you history tracking and team collaboration for free
+- Running on markdown files alone, with no vector DB, means it works with any AI agent with zero ecosystem lock-in
 
 ---
 
-## Hermes Agent에서 영감을 받다
+## Inspired by Hermes Agent
 
-[NousResearch](https://nousresearch.com/)는 Hermes·Nous-Capybara 등 파인튜닝 모델 시리즈로 오픈소스 AI 커뮤니티에서 잘 알려진 연구 조직이다. [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)는 이 조직이 만든 **스킬 기반 자가 진화 에이전트 하네스**다.
+[NousResearch](https://nousresearch.com/) is a research organization well known in the open-source AI community for fine-tuned model series like Hermes and Nous-Capybara. [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) is a **skill-based, self-evolving agent harness** built by that organization.
 
-핵심 문제 의식: 에이전트가 오래 쓰일수록 스킬이 누적되고 중복이 생기며 사용 패턴이 바뀐다. **스킬 생태계 자체가 진화해야 한다.** Hermes는 이 문제를 4개의 Python 레이어로 해결한다.
+The core problem it addresses: the longer an agent is used, the more skills pile up, duplication creeps in, and usage patterns shift. **The skill ecosystem itself has to evolve.** Hermes solves this with four Python layers.
 
-| Hermes 구성 요소 | 역할 |
+| Hermes Component | Role |
 |---|---|
-| `skill_usage.py` | 스킬 호출마다 사용 데이터를 JSON에 기록 |
-| `curator.py` | 사용 데이터를 읽어 stale/archive 판정 + 진화 리포트 생성 |
-| `prompt_builder.py` | 사용 패턴 기반으로 에이전트 지시서에 권고 사항을 동적 주입 |
-| `skill_manager.py` | 스킬 생성·아카이브·복원 CRUD |
+| `skill_usage.py` | Logs usage data to JSON on every skill invocation |
+| `curator.py` | Reads usage data to decide stale/archive status and generate an evolution report |
+| `prompt_builder.py` | Dynamically injects recommendations into the agent's instruction file based on usage patterns |
+| `skill_manager.py` | CRUD for creating, archiving, and restoring skills |
 
-**왜 이 메커니즘을 도입했나:**
+**Why we adopted this mechanism:**
 
-스킬은 `.md` 파일로 작성되어 선언적이고 에이전트 무관하지만, 사용 추적·상태 전이·파일 이동 같은 결정론적 로직은 코드로 처리해야 한다. Hermes의 4-레이어 구조는 이 경계를 명확하게 분리한다 — **선언(`SKILL.md`)은 에이전트가, 판정(`curator.py`)은 Python이** 담당한다.
+Skills are declarative `.md` files, agent-agnostic by nature — but deterministic logic like usage tracking, state transitions, and moving files around needs to be handled by actual code. Hermes's four-layer structure draws a clean line here: **the agent owns the declaration (`SKILL.md`), Python owns the judgment (`curator.py`)**.
 
-project-scaffold는 이 구조를 그대로 채택했다. 스킬을 많이 쓸수록 `skills/.usage.json`에 데이터가 쌓이면 `prompt_builder.py`가 `AGENT.md`의 권고 섹션을 자동 갱신한다. `/curate` 스킬이 LLM 판단으로 통합·정리하는 것도 같은 흐름이다.
+project-scaffold adopted this structure as-is. The more skills get used, the more data piles up in `skills/.usage.json`, and `prompt_builder.py` auto-refreshes the recommendation section of `AGENT.md`. The `/curate` skill consolidating and cleaning things up via LLM judgment follows the same flow.
 
-또한 Hermes의 `SOUL.md` 개념도 도입했다. Hermes에서 SOUL.md는 에이전트의 페르소나를 정의하는 파일로, `/setup`이 `AGENT.md`를 갱신해도 변하지 않는 영구 설정이다. project-scaffold에서는 **개발자가 원하는 AI 비서의 성격**을 여기에 정의한다 — 말투, 전문성 가정, 피드백 방식, 불확실할 때의 행동 방식. 프로젝트가 바뀌어도 비서의 성격은 유지된다.
+We also brought in Hermes's `SOUL.md` concept. In Hermes, SOUL.md defines the agent's persona — a permanent setting that doesn't change even when `/setup` rewrites `AGENT.md`. In project-scaffold, this is where **the personality you want your AI assistant to have** gets defined — tone, assumed expertise level, feedback style, how it should behave when uncertain. The assistant's personality survives even when the project underneath it changes.
 
 ---
 
-## oh-my-openagent와의 차별점
+## How It Differs from oh-my-openagent
 
-[oh-my-openagent (OmO)](https://github.com/code-yeongyu/oh-my-openagent)는 한국인 개발자 code-yeongyu가 $24,000 상당의 토큰을 직접 소비해 모든 에이전트 도구를 테스트한 끝에 만든 오픈소스 에이전트 하네스다. **2025년 12월 생성 후 6개월 만에 GitHub Stars 62,000+** 를 달성했으며, Google·Microsoft·Vercel 엔지니어들이 사용하는 도구로 알려져 있다.
+[oh-my-openagent (OmO)](https://github.com/code-yeongyu/oh-my-openagent) is an open-source agent harness built by Korean developer code-yeongyu, who personally burned through roughly $24,000 worth of tokens testing every agent tool he could find. **Six months after it was created in December 2025, it had crossed 62,000+ GitHub stars**, and it's reportedly used by engineers at Google, Microsoft, and Vercel.
 
-OmO의 핵심 혁신:
-- **Hash-Anchored Edits** — 모든 줄에 콘텐츠 해시 태그를 부착해 에이전트 에디트 성공률을 6.7% → 68.3%로 끌어올렸다
-- **Ralph Loop** — 100% 완료까지 멈추지 않는 자기 참조 오케스트레이션
-- **멀티 모델 팀** — Sisyphus(Claude), Hephaestus(GPT-5), Prometheus, Oracle 등 11개 전문 에이전트가 태스크 카테고리별로 최적 모델을 배정받아 병렬 실행된다
+OmO's core innovations:
+- **Hash-Anchored Edits** — attaching a content hash tag to every line, which pushed agent edit success rate from 6.7% to 68.3%
+- **Ralph Loop** — self-referential orchestration that refuses to stop short of 100% completion
+- **Multi-model team** — 11 specialized agents (Sisyphus/Claude, Hephaestus/GPT-5, Prometheus, Oracle, and others), each assigned the best-fit model per task category, running in parallel
 
-OmO와 project-scaffold를 비교하면:
+Comparing OmO and project-scaffold:
 
 | | oh-my-openagent (OmO) | project-scaffold |
 |---|---|---|
-| 방향 | **엑셀러레이터** — 에이전트에게 폭넓은 도구와 권한 | **가드레일** — 에이전트 오작동·규칙 위반 통제 |
-| 대상 | 빠른 프로토타이핑 (1인·소규모팀) | 현업 협업팀 |
-| 지식 관리 | 없음 | LLM Wiki (`wiki/` 레이어) |
-| devlog | 없음 | 커밋마다 자동 생성 (post-commit 훅) |
-| 컨벤션 강제 | 없음 | Hard(훅) + Soft(AGENT.md) 2-레이어 |
-| 하네스 중립성 | OpenCode 하네스 기반 (Claude Code는 호환 레이어 별도 제공) | `AGENT.md` 단일 소스 — Claude Code·Codex·Antigravity·Windsurf·Cursor·Continue.dev·Hermes·Aider 8종 동작 |
+| Direction | **Accelerator** — gives the agent broad tools and permissions | **Guardrail** — keeps agent misbehavior and rule violations in check |
+| Target | Fast prototyping (solo devs / small teams) | Production teams |
+| Knowledge management | None | LLM Wiki (`wiki/` layer) |
+| Devlog | None | Auto-generated on every commit (post-commit hook) |
+| Convention enforcement | None | Two layers: Hard (hook) + Soft (AGENT.md) |
+| Harness neutrality | Built on the OpenCode harness (Claude Code gets a separate compatibility layer) | `AGENT.md` is the single source — works across 8 agents: Claude Code, Codex, Antigravity, Windsurf, Cursor, Continue.dev, Hermes, Aider |
 
-OmO가 "무엇을 만들지"만 지정하면 에이전트 팀이 자율 분업해 처리하는 **에이전트 OS 레이어**라면, project-scaffold는 어떤 에이전트를 써도 팀 컨벤션·기록·검증이 기계적으로 보장되는 **프로젝트 지식 기반 레이어**다. 레이어가 달라 함께 쓸 수 있다.
+If OmO is an **agent OS layer** — you specify "what to build" and a team of agents autonomously divides up the work — project-scaffold is a **project-knowledge layer** that mechanically guarantees team conventions, records, and verification no matter which agent you're running. They sit at different layers, so you can use both at once.
 
 ---
 
-## 시스템 구조
+## Why Multi-Agent Compatibility Matters — The June 2026 Fable 5 Incident
 
-9개의 스킬, 4개의 Python 스크립트, 2개의 git hook, 그리고 `AGENT.md`·`SOUL.md` 이중 진실 소스로 구성된다.
+project-scaffold's decision to support 8 AI agents (Claude Code, Codex, Antigravity, Windsurf, Cursor, Continue.dev, Hermes, Aider) through a single `AGENT.md` wasn't a matter of taste. It was prompted by something that actually happened.
+
+### What Happened
+
+- **2026-06-09**: Anthropic released its newest models, Claude Fable 5 and Mythos 5
+- **2026-06-12, 5:21 PM ET**: citing national security authorities, the US government issued an export control directive ordering Anthropic to "suspend all access to Fable 5 and Mythos 5 by any foreign national, whether inside or outside the United States, including foreign national Anthropic employees"
+- Anthropic disagreed with the directive but complied. **Every other Claude model (Opus, Sonnet, Haiku, etc.) was unaffected**
+- The government's letter didn't disclose specific grounds, but Anthropic's understanding was that the government had become aware of a way to bypass, or "jailbreak," Fable 5. In its official statement, Anthropic pushed back directly: *"We disagree that the finding of a narrow potential jailbreak should be cause for recalling a commercial model deployed to hundreds of millions of people,"* adding that holding the entire industry to that standard "would essentially halt all new model deployments for all frontier model providers"
+- The order landed just three days after launch. Anthropic said it believed the action stemmed from a misunderstanding and was working to restore access as quickly as possible
+
+### Implications
+
+What this incident shows is that **tying your team's entire workflow to a single vendor or a single model means one external factor you have no control over — government policy, export controls, a change in service terms — can stop your productivity cold, overnight.** For developers based outside the US, including Korea, the risk is even more direct: it wasn't model performance or price that decided access — it was nationality itself.
+
+This is exactly why project-scaffold keeps `AGENT.md` as the single source of truth for every agent, with nothing but a one-line wrapper file (`CLAUDE.md`, `.cursorrules`, etc.) per agent on top of it. If access to a particular model or agent gets cut off, your team's conventions and working context stay intact in `AGENT.md`, and you can switch to a different agent immediately just by swapping the wrapper file. Vendor lock-in isn't an abstract worry — it's something that actually happens.
+
+### Sources
+
+- [Anthropic — Statement on the US government directive to suspend access to Fable 5 and Mythos 5](https://www.anthropic.com/news/fable-mythos-access)
+- [Anthropic (official X account) — thread posted shortly after the directive](https://x.com/AnthropicAI/status/2065597531644743999)
+- [CNN Business — Anthropic suspends all access to Mythos model after US government bans foreign nationals use](https://www.cnn.com/2026/06/13/business/anthropic-mythos-model-national-security)
+- [Bloomberg — Anthropic Says US Orders Halt to Foreign Access for Fable 5, Mythos 5 AI Models](https://www.bloomberg.com/news/articles/2026-06-13/anthropic-says-us-limits-foreign-access-to-fable-5-mythos-5)
+- [Fortune — Anthropic disables Fable and Mythos AI models after U.S. government bars it from giving foreigners access](https://fortune.com/2026/06/13/anthropic-disables-fable-mythos-export-controls-national-security-threat/)
+
+---
+
+## System Architecture
+
+Made up of 10 skills, 4 Python scripts, 2 git hooks, and a dual source of truth: `AGENT.md` + `SOUL.md`.
 
 ```text
-사용자
+User
   │
-  ├─ /setup      ─── wiki/conventions/ (14개 페이지) + AGENT.md + SOUL.md 생성
-  ├─ /capture    ─── raw/ 저장 (회의·결정·dev-log)
-  ├─ /ingest     ─── raw/ → wiki/ 통합
-  ├─ /query      ─── wiki/ 기반 질의응답
-  ├─ /report     ─── 회의·인터뷰·ADR·스프린트 → 내 파악용 + 팀 공유용 문서
-  ├─ /code-lint  ─── wiki/conventions/ 기준 코드 검증
-  ├─ /wiki-lint  ─── wiki/ 품질 점검
-  ├─ /dashboard  ─── 프로젝트 현황 대시보드
-  └─ /curate     ─── 스킬 진화 큐레이터 (통합·아카이브·신규 제안)
+  ├─ /setup      ─── generates wiki/conventions/ (14 pages) + AGENT.md + SOUL.md
+  ├─ /capture    ─── saves to raw/ (meetings · decisions · dev-logs)
+  ├─ /ingest     ─── raw/ → wiki/ integration
+  ├─ /query      ─── wiki/-grounded Q&A
+  ├─ /report     ─── meetings/interviews/ADRs/sprints → internal notes + team-shared doc
+  ├─ /code-lint  ─── code verification against wiki/conventions/
+  ├─ /wiki-lint  ─── wiki/ quality check
+  ├─ /dashboard  ─── project status dashboard
+  ├─ /curate     ─── skill evolution curator (consolidate · archive · propose)
+  └─ /help       ─── full skill list, role classification, getting-started flow
 
 git commit
-  ├─ pre-commit  ─── .hooks/convention-check.sh (보안·정적 분석)
-  └─ post-commit ─── .hooks/devlog-auto.sh (raw/dev-logs/ 자동 생성)
+  ├─ pre-commit  ─── .hooks/convention-check.sh (security & static analysis)
+  └─ post-commit ─── .hooks/devlog-auto.sh (auto-generates raw/dev-logs/)
 
-스킬 실행 시 자동 루프
-  ├─ skill_usage.py  ─── skills/.usage.json 갱신
-  └─ prompt_builder.py ─ AGENT.md 권고 섹션 자동 갱신
+Automatic loop on every skill run
+  ├─ skill_usage.py    ─── updates skills/.usage.json
+  └─ prompt_builder.py ─── auto-refreshes AGENT.md's recommendation section
 
-AGENT.md  ─── 프로젝트별 에이전트 지시서 (/setup이 생성·갱신)
-SOUL.md   ─── 개발자 AI 비서 페르소나 (프로젝트 무관, 영구 보존)
+AGENT.md  ─── per-project agent instructions (created/updated by /setup)
+SOUL.md   ─── developer's AI assistant persona (project-agnostic, permanent)
 ```
 
 ---
 
-## 사용자 vs 시스템 역할 분리
+## User vs System Role Separation
 
-> 개발자는 개발에만 집중하면 된다. 반복 작업은 시스템이 처리한다.
+> Developers should be free to just focus on developing. The system handles the repetitive work.
 
-### 사용자가 직접 실행하는 것
+### What the User Runs Directly
 
-| 스킬 | 언제 | 비고 |
+| Skill | When | Note |
 |---|---|---|
-| `/setup` | 프로젝트 시작 시 컨벤션 정의 | 최초 1회 |
-| `/capture` | 회의·결정·개발 내용 기록 | 완료 후 `/ingest` 실행 여부 자동 제안 |
-| `/ingest` | raw/ 파일을 wiki에 반영 | `/capture` 완료 시 자동 제안됨 |
-| `/query` | wiki 기반 질의응답 | 필요 시 |
-| `/report` | 회의록·ADR·스프린트 요약 생성 | 필요 시 |
-| `/code-lint` | 컨벤션 기반 코드 검증 | PR 전 |
+| `/setup` | Define conventions at project kickoff | Once, at the start |
+| `/capture` | Record meetings, decisions, dev work | Auto-suggests running `/ingest` right after |
+| `/ingest` | Apply raw/ files into the wiki | Auto-suggested when `/capture` finishes |
+| `/query` | Wiki-grounded Q&A | As needed |
+| `/report` | Generate meeting notes / ADR / sprint summaries | As needed |
+| `/code-lint` | Convention-based code review | Before a PR |
+| `/help` | Check the skill list, role classification, getting-started flow | When new to the harness, or unsure what to use |
 
-### 에이전트가 제안 · 사용자가 확인 후 실행
+### Agent Suggests, User Confirms Before Running
 
-기억하거나 직접 챙기지 않아도 된다. 세션 시작 시 에이전트가 조건을 확인하고 필요할 때만 한 줄로 제안한다.
+You don't need to remember or track any of these yourself. At the start of a session, the agent checks the conditions and, only if one is met, makes a one-line suggestion.
 
-| 스킬 | 제안 조건 |
+| Skill | Trigger condition |
 |---|---|
-| `/dashboard` | 마지막 갱신 후 7일 이상 경과 시 |
-| `/wiki-lint` | 마지막 실행 후 14일 이상 경과 시 |
-| `/curate` | stale 스킬 누적 또는 총 호출 50회 이상 시 |
+| `/dashboard` | 7+ days since the last refresh |
+| `/wiki-lint` | 14+ days since the last run |
+| `/curate` | Stale skills piling up, or 50+ total invocations |
 
-### 시스템이 자동으로 처리하는 것
+### What the System Handles Automatically
 
-| 트리거 | 동작 | 담당 |
+| Trigger | Action | Owner |
 |---|---|---|
-| `git commit` | 보안·정적 분석 검사 — 위반 시 커밋 차단 | `pre-commit` hook |
-| `git commit` | 커밋 메시지 + 변경 파일 → `raw/dev-logs/` 자동 기록 | `post-commit` hook |
-| 스킬 실행 시 | `skills/.usage.json` 갱신 | `skill_usage.py` |
-| 스킬 실행 시 | `AGENT.md` 권고 섹션 자동 갱신 | `prompt_builder.py` |
+| `git commit` | Security & static-analysis check — blocks the commit on a violation | `pre-commit` hook |
+| `git commit` | Logs commit message + changed files to `raw/dev-logs/` | `post-commit` hook |
+| On every skill run | Updates `skills/.usage.json` | `skill_usage.py` |
+| On every skill run | Auto-refreshes the recommendation section of `AGENT.md` | `prompt_builder.py` |
 
 ---
 
-## 핵심 기능
+## Core Features
 
-### `/setup` — 프로젝트 초기 인터뷰
+### `/setup` — Initial Project Interview
 
-2~3시간의 심층 인터뷰로 14개 카테고리 컨벤션을 정의하고 `wiki/conventions/` 페이지와 `SOUL.md`를 자동 생성한다.
+A 2-3 hour deep interview that defines conventions across 14 categories and auto-generates the `wiki/conventions/` pages plus `SOUL.md`.
 
-**14개 인터뷰 카테고리:**
+**14 interview categories:**
 
-| # | 카테고리 | 산출물 |
+| # | Category | Output |
 |---|---|---|
-| 1 | 프로젝트 개요 | `wiki/conventions/01-project-overview.md` |
-| 2 | 기술 스택 | `wiki/conventions/02-tech-stack.md` |
-| 3 | 네이밍 컨벤션 | `wiki/conventions/03-naming.md` |
-| 4 | Git 컨벤션 | `wiki/conventions/04-git.md` |
-| 5 | 아키텍처 규칙 | `wiki/conventions/05-architecture.md` |
-| 6 | TDD 규칙 | `wiki/conventions/06-tdd.md` |
-| 7 | devlog 템플릿 | `wiki/conventions/07-devlog.md` |
-| 8 | HITL 리스크 기준 | `wiki/conventions/08-hitl-risk.md` |
-| 9 | 대시보드 설정 | `wiki/conventions/09-dashboard.md` |
-| 10 | 코드리뷰 체크리스트 | `wiki/conventions/10-code-review.md` |
-| 11 | 에러 핸들링 | `wiki/conventions/11-error-handling.md` |
-| 12 | 보안 컨벤션 | `wiki/conventions/12-security.md` |
-| 13 | 의존성 관리 | `wiki/conventions/13-dependencies.md` |
-| 14 | AI 비서 페르소나 | `SOUL.md` (프로젝트 무관, 영구 보존) |
+| 1 | Project overview | `wiki/conventions/01-project-overview.md` |
+| 2 | Tech stack | `wiki/conventions/02-tech-stack.md` |
+| 3 | Naming conventions | `wiki/conventions/03-naming.md` |
+| 4 | Git conventions | `wiki/conventions/04-git.md` |
+| 5 | Architecture rules | `wiki/conventions/05-architecture.md` |
+| 6 | TDD rules | `wiki/conventions/06-tdd.md` |
+| 7 | Devlog template | `wiki/conventions/07-devlog.md` |
+| 8 | HITL risk criteria | `wiki/conventions/08-hitl-risk.md` |
+| 9 | Dashboard settings | `wiki/conventions/09-dashboard.md` |
+| 10 | Code review checklist | `wiki/conventions/10-code-review.md` |
+| 11 | Error handling | `wiki/conventions/11-error-handling.md` |
+| 12 | Security conventions | `wiki/conventions/12-security.md` |
+| 13 | Dependency management | `wiki/conventions/13-dependencies.md` |
+| 14 | AI assistant persona | `SOUL.md` (project-agnostic, permanent) |
 
-모든 카테고리 완료 후 `AGENT.md`가 자동 생성된다. 카테고리마다 독립 파일로 저장되어 중단 후 이어서 진행한다.
+`AGENT.md` is auto-generated once every category is complete. Each category is saved as its own file, so progress survives if the interview gets interrupted.
 
-**ambiguity-check 내장:**
-모든 답변은 4가지 기준(구체성·실행가능성·예시가능성·완결성)을 통과해야 다음 질문으로 넘어간다. "적절히", "필요시" 같은 모호한 표현은 즉시 재질문을 유발한다. 에이전트가 추가 질문 없이 따르는 규칙만 wiki에 기록된다.
+**Built-in ambiguity-check:**
+Every answer has to clear 4 criteria (specificity, actionability, exemplifiability, completeness) before moving to the next question. Vague phrases like "as appropriate" or "if needed" trigger an immediate follow-up. Only rules the agent can follow with no further questions get written into the wiki.
 
 ---
 
-### `/capture` — 회의·결정·개발 기록
+### `/capture` — Capture Meetings, Decisions, and Dev Work
 
-작업 중 발생하는 중요한 내용을 `raw/`에 저장한다.
+Saves important content that comes up during work to `raw/`.
 
-| 타입 | 저장 경로 | 용도 |
+| Type | Storage path | Use |
 |---|---|---|
-| `meeting` | `raw/meetings/` | 회의 내용, 결정 사항, 액션 아이템 |
-| `decision` | `raw/decisions/` | 아키텍처·기술 결정, 트레이드오프, 재검토 조건 |
-| `dev-log` | `raw/dev-logs/` | 개발 과정, 문제 해결, 회고 |
+| `meeting` | `raw/meetings/` | Meeting content, decisions, action items |
+| `decision` | `raw/decisions/` | Architecture/technical decisions, trade-offs, revisit conditions |
+| `dev-log` | `raw/dev-logs/` | Development process, problem-solving, retrospectives |
 
-저장된 파일은 `ingest_status: "⏳ pending"` 상태가 되어 `/ingest`가 자동으로 탐지한다.
+Saved files get `ingest_status: "⏳ pending"`, which `/ingest` automatically detects.
 
 ---
 
-### `/ingest` — wiki 자동 통합
+### `/ingest` — Automatic Wiki Integration
 
-raw 소스를 wiki 전체에 통합한다. 단일 소스 하나가 10~15개 페이지에 영향을 준다.
+Integrates a raw source across the entire wiki. A single source can touch 10-15 pages.
 
 ```text
-raw/ 파일 읽기
-  → 소스 요약 페이지 생성 (wiki/sources/)
-  → 관련 conventions/decisions/devlog 페이지 업데이트
-  → 백링크 감사 (누락된 wikilink 추가)
-  → wiki/index.md 갱신
-  → wiki/log.md 기록
-  → raw/ ingest_status → "✅ done"
+Read the raw/ file
+  → generate a source-summary page (wiki/sources/)
+  → update related conventions/decisions/devlog pages
+  → backlink audit (add any missing wikilinks)
+  → refresh wiki/index.md
+  → log it in wiki/log.md
+  → flip raw/ ingest_status → "✅ done"
 ```
 
-모순 발견 시 덮어쓰지 않고 양쪽 소스를 인용하여 `> ⚠️ 모순` 블록으로 표시한다.
+When a contradiction turns up, nothing gets overwritten — both sources are cited and flagged with a `> ⚠️ Contradiction` block.
 
 ---
 
-### `/query` — wiki 기반 질의응답
+### `/query` — Wiki-Grounded Q&A
 
-"테스트 파일 어디에 두지?", "이 패키지 써도 돼?" 같은 질문에 wiki를 근거로 답한다.
+Answers questions like "where do test files go?" or "am I allowed to use this package?" by grounding the answer in the wiki.
 
 ```text
-wiki/index.md 읽기 (전체 페이지 파악)
-  → 관련 pages 읽기 (conventions → decisions → devlog 우선순위)
-  → [[wikilink]] 인용 포함 답변 합성
-  → 필요 시 raw/ 보충 참조
-  → 좋은 답변은 wiki/synthesis/에 저장
+Read wiki/index.md (get the full page map)
+  → read the relevant pages (priority order: conventions → decisions → devlog)
+  → synthesize an answer with [[wikilink]] citations
+  → fall back to raw/ for extra detail if needed
+  → save good answers to wiki/synthesis/
 ```
 
-소스가 쌓일수록 답변 품질이 높아진다.
+Answer quality improves as more sources accumulate.
 
 ---
 
-### `/code-lint` — 컨벤션 기반 코드 검증
+### `/code-lint` — Convention-Based Code Review
 
-**2-레이어 검증**: 정적 분석 도구 + LLM 컨텍스트 리뷰를 조합한다.
+**Two-layer verification**: combines static-analysis tooling with LLM context review.
 
-| 레이어 | 도구 | 역할 |
+| Layer | Tool | Role |
 |---|---|---|
-| 정적 분석 | pylint / mypy / eslint | 문법·타입 오류, 코드 품질 |
-| LLM 리뷰 | wiki/conventions/ 기반 | 네이밍·아키텍처·보안·TDD 컨텍스트 위반 |
+| Static analysis | pylint / mypy / eslint | Syntax/type errors, code quality |
+| LLM review | Grounded in `wiki/conventions/` | Naming/architecture/security/TDD context violations |
 
-LLM은 `wiki/conventions/`를 읽고 팀 규칙 기준으로 판단한다. 정적 도구가 잡지 못하는 **의미적·아키텍처적 위반**을 탐지한다.
+The LLM reads `wiki/conventions/` and judges against the team's own rules — catching **semantic and architectural violations** that static tools can't see.
 
-🔴 위반 발견 시 HITL 확인 후 진행. 자동 수정은 하지 않는다.
+🔴 On finding a violation, it only proceeds after HITL confirmation. It never auto-fixes anything.
 
 ---
 
-### `/wiki-lint` — wiki 품질 점검
+### `/wiki-lint` — Wiki Quality Check
 
-| 탐지 항목 | 설명 |
+| Detection target | Description |
 |---|---|
-| 고아 페이지 | inbound wikilink가 0개인 페이지 |
-| 깨진 wikilink | 존재하지 않는 파일을 가리키는 `[[링크]]` |
-| 누락 백링크 | A가 B를 언급하지만 B가 A를 역참조하지 않는 경우 |
-| 미해결 모순 | `> ⚠️ 모순` 블록이 있는 페이지 |
-| stale 페이지 | `updated` 날짜가 90일 이상 지난 페이지 |
-| frontmatter 누락 | 필수 필드 누락 |
+| Orphan pages | Pages with zero inbound wikilinks |
+| Broken wikilinks | `[[links]]` pointing at files that don't exist |
+| Missing backlinks | A mentions B, but B never references A back |
+| Unresolved contradictions | Pages carrying a `> ⚠️ Contradiction` block |
+| Stale pages | Pages whose `updated` date is 90+ days old |
+| Missing frontmatter | Required fields are absent |
 
-리포트만 하고 자동 수정은 하지 않는다. 수정 여부는 사용자가 결정한다.
+Reports only — it never auto-fixes. Whether to fix anything is left to the user.
 
 ---
 
-### `/dashboard` — 프로젝트 현황 대시보드
+### `/dashboard` — Project Status Dashboard
 
-오늘 할 일, 마일스톤 진행도, 최근 devlog를 한 화면에 집약한다.
+Pulls together today's tasks, milestone progress, and recent devlogs into a single view.
 
-**3가지 렌더 모드 (A→B→C 순서로 구축):**
+**3 render modes (built in order, A→B→C):**
 
-| 모드 | 명령 | 출력 |
+| Mode | Command | Output |
 |---|---|---|
-| markdown | `/dashboard` | `wiki/dashboard.md` 갱신 |
-| terminal | `/dashboard term` | ANSI 컬러 터미널 출력 |
-| web | `/dashboard web` | `wiki/dashboard.html` → 브라우저 오픈 |
+| markdown | `/dashboard` | Refreshes `wiki/dashboard.md` |
+| terminal | `/dashboard term` | ANSI-colored terminal output |
+| web | `/dashboard web` | `wiki/dashboard.html` → opens in browser |
 
-커밋 훅(`devlog-auto.sh`)에 연결되어 커밋마다 `wiki/dashboard.md`가 자동 갱신된다.
+Wired into the commit hook (`devlog-auto.sh`), so `wiki/dashboard.md` auto-refreshes on every commit.
 
 ---
 
-### `/report` — 리포트 생성
+### `/report` — Generate Reports
 
-회의·인터뷰·스프린트·기술 결정 내용을 받아 용도에 맞는 문서를 생성한다.
+Takes meeting/interview/sprint/technical-decision content and turns it into whichever document fits the purpose.
 
-**타입 4종:**
+**4 types:**
 
-| 타입 | 설명 |
+| Type | Description |
 |---|---|
-| 회의록 | 팀 정기 회의, 기획 회의 |
-| 인터뷰 리포트 | 사용자·고객·팀원 딥인터뷰 |
-| ADR | Architecture Decision Record — 기술 결정 문서 |
-| 스프린트 요약 | 스프린트 회고·계획 |
+| Meeting notes | Regular team meetings, planning meetings |
+| Interview report | Deep interviews with users/customers/teammates |
+| ADR | Architecture Decision Record — a technical decision document |
+| Sprint summary | Sprint retrospective/planning |
 
-**출력 모드 2종:**
+**2 output modes:**
 
-| 모드 | 내용 | 저장 경로 |
+| Mode | Content | Storage path |
 |---|---|---|
-| **내 파악용** | 상세 인사이트·의문점·주관적 해석 포함 | `wiki/meetings/[date]_[slug]_internal.md` |
-| **팀 공유용** | 결정사항·액션아이템·담당자 중심의 공유 문서 | `wiki/meetings/[date]_[slug]_shared.md` |
+| **Internal notes** | Detailed insights, open questions, subjective interpretation included | `wiki/meetings/[date]_[slug]_internal.md` |
+| **Team-shared** | Decisions, action items, owner-focused shared document | `wiki/meetings/[date]_[slug]_shared.md` |
 
-둘 다 선택 시 두 파일을 동시에 생성하고, 팀 공유용은 Slack·Notion에 바로 붙여넣을 수 있도록 마크다운 블록으로도 출력한다.
+If you pick both, both files get generated at once, and the team-shared version is also printed as a markdown block so it can be pasted straight into Slack or Notion.
 
 ---
 
-### `/curate` — 스킬 진화 큐레이터
+### `/curate` — Skill Evolution Curator
 
-스킬이 쌓일수록 중복이 생기고 사용 패턴이 변한다. `/curate`는 Hermes Agent의 자가 진화 메커니즘을 Claude Code 환경에 이식한 스킬이다.
+The more skills pile up, the more duplication appears and the more usage patterns shift. `/curate` ports Hermes Agent's self-evolution mechanism into the Claude Code environment.
 
-**2단계 동작:**
+**Two-stage operation:**
 
 ```text
-python3 scripts/curator.py report   ← Python: 사용 데이터 기반 stale/archive 판정
-  └─ LLM 클러스터링 분석             ← Claude: 스킬 통합·신규 제안 판단
-       └─ HITL 확인 후 실행          ← 사람: 최종 결정
+python3 scripts/curator.py report   ← Python: stale/archive judgment from usage data
+  └─ LLM clustering analysis        ← Claude: judges skill consolidation / new-skill proposals
+       └─ Runs only after HITL confirmation  ← Human: final call
 ```
 
-| 판정 | 기준 | 액션 |
+| Judgment | Criterion | Action |
 |---|---|---|
-| stale | 30일 미사용 | 권고 표시 |
-| archive | 90일 미사용 | `skills/.archive/`로 이동 |
-| 통합 | 기능 중복 탐지 | SKILL.md 병합 제안 |
-| 신규 | 반복 패턴 감지 | 새 스킬 생성 제안 |
+| stale | Unused for 30 days | Flagged as a recommendation |
+| archive | Unused for 90 days | Moved to `skills/.archive/` |
+| consolidate | Functional duplication detected | Proposes merging the SKILL.md files |
+| new | Repeated pattern detected | Proposes creating a new skill |
 
-각 SKILL.md에 `skill_usage.py track` 호출이 포함되어 있어, 스킬 실행 시 수동으로 실행하면 `skills/.usage.json`이 갱신되고 `prompt_builder.py`가 `AGENT.md` 권고 섹션을 자동 업데이트한다. 에이전트는 다음 세션에서 갱신된 AGENT.md를 읽고 행동이 달라진다.
+Every SKILL.md includes a `skill_usage.py track` call, so running a skill updates `skills/.usage.json`, and `prompt_builder.py` uses that to auto-update the recommendation section of `AGENT.md`. The agent reads the refreshed AGENT.md in the next session and its behavior changes accordingly.
 
 ---
 
-### `SOUL.md` — AI 비서 페르소나
+### `/help` — Harness Usage Guide
 
-Hermes Agent의 `SOUL.md` 개념에서 영감을 받았다. 에이전트의 고정 정체성을 정의하는 파일로, `/setup`이 `AGENT.md`를 프로젝트마다 갱신해도 이 파일은 변경되지 않는다.
+Once you're past 9 skills, it's easy to lose track of what to use and when. `/help` puts this project's current skill setup on one screen, with no need to go dig through the README.
 
-정의 항목: 말투(격식/비격식)·전문성 가정·피드백 방식·불확실할 때의 행동·언어 설정.
+```text
+Scan the skills/ directory for real (no hardcoding)
+  → collect each SKILL.md's description
+  → print it classified into 3 categories: direct / agent-suggested / system-automatic
+  → check whether wiki/conventions/ exists
+       if not        → recommend starting with "/setup"
+       if it exists   → print the recommended flow: /capture → /ingest → /query → /code-lint
+```
 
-`AGENT.md`는 `@SOUL.md`로 참조하여 비서 페르소나를 항상 읽는다.
+If a skill turns up that isn't in the classification table, it's flagged "🆕 unclassified" to prompt a README update — it never guesses a category on its own.
+
+---
+
+### `SOUL.md` — AI Assistant Persona
+
+Inspired by Hermes Agent's `SOUL.md` concept. A file that defines the agent's fixed identity — it doesn't change even when `/setup` rewrites `AGENT.md` for a new project.
+
+What it defines: tone (formal/informal), assumed level of expertise, feedback style, behavior under uncertainty, and language setting.
+
+`AGENT.md` references it via `@SOUL.md`, so the assistant's persona is always loaded.
 
 ---
 
 ### git hooks
 
 **pre-commit — `.hooks/convention-check.sh`**
-- 하드코딩된 시크릿 탐지 (password, api_key, secret 패턴)
-- pylint / eslint 정적 분석 (설치된 경우만)
-- 위반 발견 시 커밋 차단
+- Detects hardcoded secrets (password, api_key, secret patterns)
+- Static analysis via pylint / eslint (only if installed)
+- Blocks the commit when a violation is found
 
 **post-commit — `.hooks/devlog-auto.sh`**
-- 커밋 메시지 + 변경 파일 목록을 `raw/dev-logs/YYYY-MM-DD_dev-log_auto.md`에 자동 저장
-- 당일 두 번째 이상 커밋이면 기존 파일에 append
+- Auto-saves the commit message + list of changed files to `raw/dev-logs/YYYY-MM-DD_dev-log_auto.md`
+- Appends to the existing file if it's the second-or-later commit that day
 
 ---
 
-## 설계 원칙
+## Design Principles
 
-### 에이전트 무관 (Agent-Agnostic)
+### Agent-Agnostic
 
-`AGENT.md` 하나가 모든 AI 에이전트의 단일 진실 소스다. 에이전트를 교체할 때 `AGENT.md`는 그대로 유지되고 래퍼 파일만 바꾸면 된다.
+A single `AGENT.md` is the source of truth for every AI agent. When you swap agents, `AGENT.md` stays exactly as it is — only the wrapper file changes.
 
-| 에이전트 | 설정 파일 | 내용 |
+| Agent | Config file | Content |
 |---|---|---|
 | Claude Code | `CLAUDE.md` | `@AGENT.md` |
 | Cursor | `.cursorrules` | `@AGENT.md` |
 | Continue | `.continuerc` | `@AGENT.md` |
 
-### 두 레이어 강제
+### Two-Layer Enforcement
 
-- **Soft (에이전트 레이어)**: `AGENT.md`가 TDD·보안 규칙을 항상 참조. 작업마다 관련 conventions 페이지를 읽고 따름
-- **Hard (훅 레이어)**: `.hooks/convention-check.sh`가 커밋 시 `wiki/conventions/`를 참조하여 정적 검사 실행
+- **Soft (agent layer)**: `AGENT.md` always references TDD/security rules — the agent reads and follows the relevant conventions page for every task
+- **Hard (hook layer)**: `.hooks/convention-check.sh` runs static checks against `wiki/conventions/` on every commit
 
-### 지식 복리 (Knowledge Compounding)
+### Knowledge Compounding
 
 ```text
 raw/ → /ingest → wiki/ → /query → wiki/synthesis/
 ```
 
-wiki가 두꺼워질수록 에이전트 답변의 신뢰도가 올라간다. wiki는 에이전트가 쓰고, 사람이 읽는다.
+The thicker the wiki gets, the more trustworthy the agent's answers become. The agent writes the wiki; the human reads it.
 
-### raw/ 불변성
+### raw/ Immutability
 
-`raw/`의 모든 파일은 원본 그대로 보존한다. AI는 읽기만 한다. `ingest_status` 필드만 예외적으로 수정 허용된다.
+Every file in `raw/` is preserved exactly as it was originally written. The AI only ever reads it. The `ingest_status` field is the one exception allowed to be modified.
 
 ---
 
-## 도구 연동
+## Tool Integrations
 
-wiki/는 순수 마크다운이라 특정 에디터나 뷰어에 종속되지 않는다. 아래 도구들은 선택 사항이지만, 사용하면 경험이 크게 달라진다.
+`wiki/` is plain markdown, so it isn't tied to any particular editor or viewer. The tools below are optional, but using them changes the experience considerably.
 
-### Obsidian — 사람을 위한 wiki 시각화
+### Obsidian — Wiki Visualization for Humans
 
-`init.sh` 실행 후 생성되는 `wiki/` 폴더를 [Obsidian](https://obsidian.md) vault로 열 수 있다. `wiki/.obsidian/` 폴더가 자동 생성되어 아무 설정 없이 아래 기능이 즉시 동작한다.
+The `wiki/` folder created after running `init.sh` can be opened directly as an [Obsidian](https://obsidian.md) vault. The `wiki/.obsidian/` folder is generated automatically, so the features below work immediately with zero configuration.
 
-| 기능 | 이점 |
+| Feature | Benefit |
 |---|---|
-| **그래프 뷰** | `[[wikilink]]`로 연결된 컨벤션·결정·devlog가 시각적 지식 지도로 렌더링된다 |
-| **백링크 패널** | "이 네이밍 컨벤션을 참조하는 결정이 몇 개인지" 즉시 탐색 가능 |
-| **폴더 색상 그룹** | conventions·decisions·devlog·meetings 폴더가 색상으로 구분되어 구조를 한눈에 파악 |
-| **Markdown 네이티브** | 에이전트가 생성한 파일을 사람이 변환 없이 바로 읽고 편집 |
+| **Graph view** | Conventions/decisions/devlogs linked via `[[wikilink]]` render as a visual knowledge map |
+| **Backlinks panel** | Instantly see, e.g., how many decisions reference a given naming convention |
+| **Folder color groups** | conventions/decisions/devlog/meetings folders are color-coded so the structure is obvious at a glance |
+| **Native markdown** | Files the agent generates can be read and edited by a human directly, with no conversion step |
 
-> 에이전트가 wiki를 쓰고, 사람이 Obsidian으로 읽는다. wiki는 git으로 버전 관리되므로 팀원 모두가 동일한 뷰를 공유한다.
+> The agent writes the wiki; the human reads it through Obsidian. Since the wiki is version-controlled with git, the whole team shares the exact same view.
 
-VS Code, Typora 등 마크다운을 지원하는 에디터라면 어디서든 동작한다.
+It works in any markdown-capable editor — VS Code, Typora, you name it.
 
 ---
 
-### Graphify — AI를 위한 지식 그래프
+### Graphify — A Knowledge Graph for AI
 
-[Graphify](https://graphify.net/)는 AI 코딩 어시스턴트를 위한 오픈소스 지식 그래프 도구다. Tree-sitter AST + LLM 의미 추출 + Leiden 클러스터링으로 wiki/를 파싱해 쿼리 가능한 그래프를 생성한다.
+[Graphify](https://graphify.net/) is an open-source knowledge-graph tool for AI coding assistants. It parses `wiki/` using Tree-sitter AST + LLM semantic extraction + Leiden clustering to produce a queryable graph.
 
-`init.sh`가 graphifyy 설치 여부를 자동 감지해 AI 에이전트 등록까지 처리한다. 미설치 시 안내 메시지가 출력된다.
+`init.sh` auto-detects whether graphify is installed and handles AI-agent registration as well. If it isn't installed, you'll just get a guidance message instead.
 
-wiki/를 갱신할 때마다 아래 명령으로 그래프를 업데이트한다:
+Update the graph whenever you update the wiki:
 
 ```bash
 graphify update wiki/
 ```
 
-`graphify-out/`은 로컬 생성 파일로 `.gitignore`에 포함된다. 개인이 자신의 wiki 맥락을 AI에게 효율적으로 전달하기 위한 도구로, 팀원과 공유하지 않는다.
+`graphify-out/` is a locally generated artifact, included in `.gitignore`. It's a tool for feeding your own wiki context to an AI efficiently — it's not something you share with teammates.
 
 ```text
 graphify-out/
-├── graph.html        ← 인터랙티브 시각화
-├── GRAPH_REPORT.md   ← 핵심 노드, 예상 밖 연결, 탐구 질문 제안
-└── graph.json        ← 쿼리 가능한 그래프
+├── graph.html        ← interactive visualization
+├── GRAPH_REPORT.md   ← key nodes, surprising connections, suggested questions to explore
+└── graph.json        ← queryable graph
 ```
 
-| 문제 | Graphify 해결 방식 |
+| Problem | How Graphify Solves It |
 |---|---|
-| wiki 전체 매번 로딩 → 토큰 낭비 | graph.json 쿼리로 **71.5× 토큰 절감** |
-| 세션 종료 시 컨텍스트 초기화 | graphify-out/에 영구 저장·재사용 |
-| wiki 파일 간 연결 관계 파악 | God Nodes·Surprise Edges 탐지 |
-| 소스 코드 외부 전송 우려 | 시맨틱 설명만 전송, 소스 코드 미전송 (MIT 라이선스) |
+| Loading the whole wiki every time wastes tokens | Querying graph.json instead gives a **71.5× token reduction** |
+| Context resets when the session ends | Persisted and reused from graphify-out/ |
+| Hard to see how wiki files connect to each other | Detects God Nodes and Surprise Edges |
+| Concern about sending source code off-machine | Only semantic descriptions are sent, never source code (MIT license) |
 
-| 도구 | 독자 | 역할 |
+| Tool | Audience | Role |
 |---|---|---|
-| **Obsidian** | 사람 | wiki/ 탐색·편집 GUI (그래프 뷰) |
-| **Graphify** | AI 에이전트 | wiki/ + 코드 지식 그래프 (토큰 효율 쿼리) |
+| **Obsidian** | Human | GUI for browsing/editing wiki/ (graph view) |
+| **Graphify** | AI agent | Knowledge graph over wiki/ + code (token-efficient queries) |
 
 ---
 
-## 빠른 시작
+## Quick Start
 
-### 새 프로젝트
+### New Project
 
 ```bash
-# 1. GitHub 템플릿으로 새 레포 생성 후 클론
+# 1. Create a new repo from the GitHub template, then clone it
 git clone https://github.com/[your-name]/[your-project].git
 cd [your-project]
 
-# 2. 초기화 — 모드 1 선택 → 에이전트 선택 → 자동 세팅
+# 2. Initialize — pick mode 1 → choose your agent(s) → automatic setup
 bash init.sh
 
-# 3. AI 에이전트에서 인터뷰 시작
+# 3. Start the interview from inside your AI agent
 /setup
 ```
 
-### 기존 프로젝트에 설치
+### Installing into an Existing Project
 
 ```bash
-# 1. project-scaffold 클론 (설치 도구로 사용)
+# 1. Clone project-scaffold (used here as an install tool)
 git clone https://github.com/taejung3852/project-scaffold.git
 cd project-scaffold
 
-# 2. 초기화 — 모드 2 선택 → 기존 프로젝트 경로 입력 → 에이전트 선택
+# 2. Initialize — pick mode 2 → enter the existing project's path → choose agent(s)
 bash init.sh
 
-# 3. 기존 프로젝트 디렉토리로 이동 후 인터뷰
+# 3. cd into the existing project and start the interview
 cd [your-existing-project]
 /setup
 ```
 
-`init.sh` 실행 시 사용할 AI 에이전트를 선택한다. 복수 선택 가능하며 `all` 입력 시 전체 적용된다.
+Running `init.sh` lets you choose which AI agent(s) to wire up. Multiple selections are supported, and entering `all` applies every one of them.
 
-| 번호 | 에이전트 | 스킬 경로 | 방식 |
+| # | Agent | Skill path | Method |
 |---|---|---|---|
-| 1 | Claude Code | `.claude/skills/` | 심링크 |
-| 2 | Codex CLI | `.agents/skills/` | 심링크 |
-| 3 | Antigravity | `.agents/skills/` | 심링크 (Codex와 경로 공유) |
-| 4 | Windsurf | `.windsurf/skills/` | 심링크 |
-| 5 | Cursor | `.cursor/rules/` | `.mdc` 변환 생성 |
-| 6 | Continue.dev | `.continue/prompts/` | `.md` 변환 생성 |
-| 7 | Hermes | `~/.hermes/config.yaml` | 외부 디렉토리 등록 |
-| 8 | Aider | `.aider.conf.yml` | `read:` 목록 추가 |
+| 1 | Claude Code | `.claude/skills/` | Symlink |
+| 2 | Codex CLI | `.agents/skills/` | Symlink |
+| 3 | Antigravity | `.agents/skills/` | Symlink (shares the path with Codex) |
+| 4 | Windsurf | `.windsurf/skills/` | Symlink |
+| 5 | Cursor | `.cursor/rules/` | Generates a converted `.mdc` |
+| 6 | Continue.dev | `.continue/prompts/` | Generates a converted `.md` |
+| 7 | Hermes | `~/.hermes/config.yaml` | Registers an external directory |
+| 8 | Aider | `.aider.conf.yml` | Adds to the `read:` list |
 
-나중에 에이전트를 추가하거나 바꾸고 싶으면 `bash init.sh`를 다시 실행하면 된다.
+To add or change agents later, just run `bash init.sh` again.
 
-`/setup`은 중간에 중단해도 완료된 카테고리가 보존된다. 나중에 이어서 진행하면 된다.
+`/setup` preserves whatever categories are already complete if you stop partway through — pick it back up later.
 
 ---
 
-## 프로젝트 구조
+## Project Structure
 
 ```
 [your-project]/
-├── AGENT.md                        ← 프로젝트별 에이전트 지시서 (/setup이 생성·갱신)
-├── SOUL.md                         ← AI 비서 페르소나 (개발자 영구 설정, /setup 불변)
-├── CLAUDE.md                       ← @AGENT.md (Claude Code용 1줄 래퍼)
-├── init.sh                         ← 초기화 스크립트 (clone 후 한 번만 실행)
+├── AGENT.md                        ← per-project agent instructions (created/updated by /setup)
+├── SOUL.md                         ← AI assistant persona (developer's permanent setting, untouched by /setup)
+├── CLAUDE.md                       ← @AGENT.md (one-line wrapper for Claude Code)
+├── init.sh                         ← initialization script (run once, right after cloning)
 │
-├── scripts/                        ← 스킬 진화 Python 레이어 (Hermes 구조)
-│   ├── skill_usage.py              ← 스킬 호출 추적 → skills/.usage.json 갱신
-│   ├── curator.py                  ← stale/archive 판정 + 진화 리포트
-│   ├── prompt_builder.py           ← 사용 패턴 → AGENT.md 권고 섹션 자동 갱신
-│   └── skill_manager.py            ← 스킬 CRUD (생성·아카이브·복원·삭제)
+├── scripts/                        ← skill-evolution Python layer (Hermes-style)
+│   ├── skill_usage.py              ← tracks skill invocations → updates skills/.usage.json
+│   ├── curator.py                  ← stale/archive judgment + evolution report
+│   ├── prompt_builder.py           ← usage patterns → auto-refreshes AGENT.md's recommendation section
+│   └── skill_manager.py            ← skill CRUD (create/archive/restore/delete)
 │
 ├── skills/
 │   ├── setup/
-│   │   ├── SKILL.md                ← 14개 카테고리 인터뷰 플로우
-│   │   └── ambiguity-check.md      ← 모호성 평가 서브스킬
-│   ├── capture/SKILL.md            ← 회의·결정·dev-log 캡처
-│   ├── ingest/SKILL.md             ← raw/ → wiki/ 통합
-│   ├── query/SKILL.md              ← wiki 기반 질의응답
-│   ├── report/SKILL.md             ← 회의·인터뷰·ADR → 내 파악용 + 팀 공유용
-│   ├── code-lint/SKILL.md          ← 컨벤션 기반 코드 검증
-│   ├── wiki-lint/SKILL.md          ← wiki 품질 점검
-│   ├── dashboard/SKILL.md          ← 대시보드 렌더링
-│   ├── curate/SKILL.md             ← 스킬 진화 큐레이터 (LLM 판단 레이어)
-│   ├── .usage.json                 ← 스킬 사용 추적 데이터
-│   └── .archive/                   ← 90일 미사용 스킬 보관소
+│   │   ├── SKILL.md                ← 14-category interview flow
+│   │   └── ambiguity-check.md      ← ambiguity-evaluation sub-skill
+│   ├── capture/SKILL.md            ← capture meetings/decisions/dev-logs
+│   ├── ingest/SKILL.md             ← raw/ → wiki/ integration
+│   ├── query/SKILL.md              ← wiki-grounded Q&A
+│   ├── report/SKILL.md             ← meetings/interviews/ADR → internal notes + team-shared
+│   ├── code-lint/SKILL.md          ← convention-based code review
+│   ├── wiki-lint/SKILL.md          ← wiki quality check
+│   ├── dashboard/SKILL.md          ← dashboard rendering
+│   ├── curate/SKILL.md             ← skill evolution curator (LLM judgment layer)
+│   ├── help/SKILL.md               ← harness usage guide (skill list, getting-started flow)
+│   ├── .usage.json                 ← skill usage tracking data
+│   └── .archive/                   ← storage for skills unused for 90+ days
 │
 ├── .hooks/
-│   ├── convention-check.sh         ← pre-commit: 보안·정적 분석 검사
-│   └── devlog-auto.sh              ← post-commit: dev-log 자동 생성
+│   ├── convention-check.sh         ← pre-commit: security & static-analysis check
+│   └── devlog-auto.sh              ← post-commit: auto-generates the dev-log
 │
-├── wiki/                           ← 에이전트가 소유·유지하는 지식 베이스
-│   ├── conventions/                ← /setup이 생성하는 컨벤션 페이지 (13개 + SOUL.md 별도)
-│   ├── decisions/                  ← 아키텍처·기술 결정 기록
-│   ├── devlog/                     ← 개발 진행 기록
-│   ├── meetings/                   ← 회의록
-│   ├── sources/                    ← raw 소스 요약 페이지
-│   ├── synthesis/                  ← 종합 분석 페이지
-│   ├── index.md                    ← 전체 wiki 카탈로그
-│   ├── log.md                      ← 오퍼레이션 로그
-│   └── dashboard.md                ← 프로젝트 현황 대시보드
+├── wiki/                           ← knowledge base owned and maintained by the agent
+│   ├── conventions/                ← convention pages generated by /setup (13 + SOUL.md separately)
+│   ├── decisions/                  ← architecture/technical decision records
+│   ├── devlog/                     ← development progress log
+│   ├── meetings/                   ← meeting notes
+│   ├── sources/                    ← raw-source summary pages
+│   ├── synthesis/                  ← synthesized analysis pages
+│   ├── index.md                    ← full wiki catalog
+│   ├── log.md                      ← operation log
+│   └── dashboard.md                ← project status dashboard
 │
-├── raw/                            ← 불변 원본 소스 (읽기 전용)
+├── raw/                            ← immutable raw sources (read-only)
 │   ├── meetings/
 │   ├── decisions/
 │   ├── dev-logs/
 │   └── ideas/
 │
-├── wiki/.obsidian/                 ← Obsidian 설정 (init.sh 실행 시 자동 생성)
+├── wiki/.obsidian/                 ← Obsidian config (auto-generated when init.sh runs)
 │
-└── graphify-out/                   ← Graphify 출력 (graph.html · GRAPH_REPORT.md · graph.json)
+└── graphify-out/                   ← Graphify output (graph.html · GRAPH_REPORT.md · graph.json)
 ```
 
 ---
 
-## 현재 상태
+## Current Status
 
-| 항목 | 상태 |
+| Item | Status |
 |---|---|
-| 스킬 파일 9개 (setup·capture·ingest·query·report·code-lint·wiki-lint·dashboard·curate) | ✅ 완료 |
-| ambiguity-check 서브스킬 | ✅ 완료 |
-| git hook 2개 (convention-check·devlog-auto) | ✅ 완료 |
-| init.sh — 에이전트 다중 선택 + 경로 자동 세팅 (8종 지원) | ✅ 완료 |
-| SKILL.md `description` frontmatter (에이전트별 자율 호출 호환) | ✅ 완료 |
-| AGENT.md 템플릿 | ✅ 완료 |
-| SOUL.md 템플릿 | ✅ 완료 |
-| 스킬 진화 Python 레이어 4개 (skill_usage·curator·prompt_builder·skill_manager) | ✅ 완료 |
-| `.obsidian/` 폴더 (Obsidian 색상 그룹 pre-configured) | ✅ 완료 |
-| Graphify 통합 (`pip install graphifyy` + `graphify install`) | ✅ 완료 |
-| AutoDoc MAS v2 dogfooding | 🔜 예정 |
+| 10 skill files (setup·capture·ingest·query·report·code-lint·wiki-lint·dashboard·curate·help) | ✅ Done |
+| ambiguity-check sub-skill | ✅ Done |
+| 2 git hooks (convention-check·devlog-auto) | ✅ Done |
+| init.sh — multi-agent selection + automatic path setup (8 agents supported) | ✅ Done |
+| SKILL.md `description` frontmatter (compatible with each agent's autonomous invocation) | ✅ Done |
+| AGENT.md template | ✅ Done |
+| SOUL.md template | ✅ Done |
+| 4 skill-evolution Python layers (skill_usage·curator·prompt_builder·skill_manager) | ✅ Done |
+| `.obsidian/` folder (Obsidian color groups pre-configured) | ✅ Done |
+| Graphify integration (`pip install graphifyy` + `graphify install`) | ✅ Done |
+| AutoDoc MAS v2 dogfooding | 🔜 Planned |
 
 ---
 
-## 영감
+## Inspiration
 
-- [Andrej Karpathy — LLM Wiki 패턴 (GitHub Gist)](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) — `raw/`·`wiki/`·`AGENT.md` 3-레이어 구조, RAG 없는 마크다운 기반 지식 관리 패턴
-- [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) — 스킬 사용 추적·자동 진화 4-레이어(`skill_usage.py`·`curator.py`·`prompt_builder.py`·`skill_manager.py`), `SOUL.md` 페르소나 개념
-- [walkinglabs/awesome-harness-engineering](https://github.com/walkinglabs/awesome-harness-engineering) — 에이전트 + 스킬 + 오케스트레이터 3요소 설계 원칙
-- [code-yeongyu/oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) — 엑셀러레이터 방향 하네스. project-scaffold의 가드레일 방향은 이 비교에서 정의됐다
-- [graphify.net (Graphify)](https://graphify.net/) — AI 코딩 어시스턴트를 위한 지식 그래프 스킬. wiki/ 시각화 레이어로 통합
+- [Andrej Karpathy — the LLM Wiki pattern (GitHub Gist)](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) — the `raw/`/`wiki/`/`AGENT.md` three-layer structure; a RAG-free, markdown-based knowledge-management pattern
+- [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) — the four-layer skill-usage-tracking/auto-evolution system (`skill_usage.py`·`curator.py`·`prompt_builder.py`·`skill_manager.py`), the `SOUL.md` persona concept
+- [walkinglabs/awesome-harness-engineering](https://github.com/walkinglabs/awesome-harness-engineering) — the agent + skills + orchestrator three-part design principle
+- [code-yeongyu/oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) — an accelerator-direction harness; project-scaffold's guardrail direction was defined in contrast to it
+- [graphify.net (Graphify)](https://graphify.net/) — a knowledge-graph skill for AI coding assistants, integrated here as the wiki/ visualization layer
