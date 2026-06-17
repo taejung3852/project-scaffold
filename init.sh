@@ -33,15 +33,15 @@ fi
 # ════════════════════════════════════════════════
 if [ "$_mode" = "2" ]; then
   echo ""
-  read -p "📁 기존 프로젝트 경로 [기본값: 현재 위치 $(pwd)]: " _target_input
+  read -p "📁 기존 프로젝트 루트 경로: " _target_input
   if [ -z "$_target_input" ]; then
-    TARGET_DIR="$(pwd)"
-  else
-    TARGET_DIR="$(cd "$_target_input" 2>/dev/null && pwd)" || {
-      echo "❌ 경로를 찾을 수 없습니다: $_target_input"
-      exit 1
-    }
+    echo "❌ 경로를 입력해주세요. (예: /Users/me/workspace/MyProject)"
+    exit 1
   fi
+  TARGET_DIR="$(cd "$_target_input" 2>/dev/null && pwd)" || {
+    echo "❌ 경로를 찾을 수 없습니다: $_target_input"
+    exit 1
+  }
 
   echo "  → 대상: $TARGET_DIR"
 
@@ -313,14 +313,15 @@ _setup_claude_code() {
 }
 
 _setup_agents_dir() {
-  echo "  📦 Codex CLI / Antigravity 스킬 심링크 설정 중..."
+  local label="$1"
+  echo "  📦 ${label} 스킬 심링크 설정 중..."
   mkdir -p .agents/skills
   for skill_dir in skills/*/; do
     skill_name=$(basename "$skill_dir")
     [ -f "${skill_dir}SKILL.md" ] || continue
     ln -sf "$(pwd)/${skill_dir}" ".agents/skills/${skill_name}" 2>/dev/null || true
   done
-  echo "  ✅ Codex CLI / Antigravity: .agents/skills/ 심링크 완료"
+  echo "  ✅ ${label}: .agents/skills/ 심링크 완료"
 }
 
 _setup_windsurf() {
@@ -438,25 +439,15 @@ PYEOF
 echo ""
 echo "🔧 에이전트 스킬 설정 중..."
 
-AGENTS_DIR_DONE=false
+_AGENTS_LABEL=""
 IFS=',' read -ra _agent_nums <<< "$agent_raw"
 
 for _num in "${_agent_nums[@]}"; do
   _num=$(echo "$_num" | tr -d ' ')
   case "$_num" in
     1) _setup_claude_code ;;
-    2)
-      if [ "$AGENTS_DIR_DONE" = false ]; then
-        _setup_agents_dir
-        AGENTS_DIR_DONE=true
-      fi
-      ;;
-    3)
-      if [ "$AGENTS_DIR_DONE" = false ]; then
-        _setup_agents_dir
-        AGENTS_DIR_DONE=true
-      fi
-      ;;
+    2) [ -z "$_AGENTS_LABEL" ] && _AGENTS_LABEL="Codex CLI" || _AGENTS_LABEL="${_AGENTS_LABEL} / Codex CLI" ;;
+    3) [ -z "$_AGENTS_LABEL" ] && _AGENTS_LABEL="Antigravity" || _AGENTS_LABEL="${_AGENTS_LABEL} / Antigravity" ;;
     4) _setup_windsurf ;;
     5) _setup_cursor ;;
     6) _setup_continue ;;
@@ -465,6 +456,8 @@ for _num in "${_agent_nums[@]}"; do
     *) echo "  ⚠️  알 수 없는 번호: ${_num} — 건너뜁니다" ;;
   esac
 done
+
+[ -n "$_AGENTS_LABEL" ] && _setup_agents_dir "$_AGENTS_LABEL"
 
 # ════════════════════════════════════════════════
 # Graphify 설정
@@ -502,7 +495,7 @@ else
   echo "  1. 위에서 선택한 AI 에이전트 실행"
   echo "  2. /setup 입력 → 프로젝트 컨벤션 인터뷰 시작"
 fi
-echo "     (예상 소요: 2~3시간. 중단 후 이어서 진행 가능)"
+echo "     (예상 소요: 1~2시간. 중단 후 이어서 진행 가능)"
 echo ""
 echo "스킬 목록:"
 echo "  /setup       프로젝트 초기 인터뷰"
