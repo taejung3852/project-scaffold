@@ -44,6 +44,15 @@ if [ "$_mode" = "2" ]; then
   fi
 
   echo "  → 대상: $TARGET_DIR"
+
+  if [ "$TARGET_DIR" = "$SCRIPT_DIR" ]; then
+    echo ""
+    echo "❌ 대상 경로가 project-scaffold 자체입니다."
+    echo "   기존 프로젝트의 경로를 입력해주세요."
+    echo "   예: /Users/me/workspace/MyProject"
+    exit 1
+  fi
+
   echo ""
   echo "📋 하네스 파일 복사 중..."
 
