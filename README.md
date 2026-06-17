@@ -53,8 +53,8 @@ It's built on [the LLM Wiki pattern proposed by Andrej Karpathy](https://gist.gi
 **1 — Create a new repo from the GitHub template, then clone it:**
 
 ```bash
-git clone https://github.com/[your-name]/[your-project].git
-cd [your-project]
+git clone https://github.com/<your-name>/<your-project>.git
+cd <your-project>
 ```
 
 **2 — Initialize — pick mode 1, then choose your agent(s):**
