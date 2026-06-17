@@ -50,30 +50,49 @@ It's built on [the LLM Wiki pattern proposed by Andrej Karpathy](https://gist.gi
 
 ### New Project
 
+**1 — Create a new repo from the GitHub template, then clone it:**
+
 ```bash
-# 1. Create a new repo from the GitHub template, then clone it
 git clone https://github.com/[your-name]/[your-project].git
 cd [your-project]
+```
 
-# 2. Initialize — pick mode 1 → choose your agent(s) → automatic setup
+**2 — Initialize — pick mode 1, then choose your agent(s):**
+
+```bash
 bash init.sh
+```
 
-# 3. Start the interview from inside your AI agent
+**3 — Open the project in your AI agent and start the interview:**
+
+> Type this inside the AI chat (Claude Code, Cursor, etc.) — **not** in the terminal.
+
+```
 /setup
 ```
 
 ### Installing into an Existing Project
 
+**1 — Clone project-scaffold as an install tool:**
+
 ```bash
-# 1. Clone project-scaffold (used here as an install tool)
 git clone https://github.com/taejung3852/project-scaffold.git
 cd project-scaffold
+```
 
-# 2. Initialize — pick mode 2 → enter the existing project's path → choose agent(s)
+**2 — Initialize — pick mode 2, enter your project's path when prompted:**
+
+```bash
 bash init.sh
+```
 
-# 3. cd into the existing project and start the interview
-cd [your-existing-project]
+> When asked for the existing project path, enter the full path (e.g. `/Users/you/workspace/MyProject`). Do not just press Enter — that defaults to the project-scaffold directory itself.
+
+**3 — Open your existing project in your AI agent and start the interview:**
+
+> Type this inside the AI chat (Claude Code, Cursor, etc.) — **not** in the terminal.
+
+```
 /setup
 ```
 
