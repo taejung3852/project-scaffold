@@ -243,7 +243,7 @@ project-scaffold's decision to support 8 AI agents (Claude Code, Codex, Antigrav
 
 What this incident shows is that **tying your team's entire workflow to a single vendor or a single model means one external factor you have no control over — government policy, export controls, a change in service terms — can stop your productivity cold, overnight.** For developers based outside the US, including Korea, the risk is even more direct: it wasn't model performance or price that decided access — it was nationality itself.
 
-This is exactly why project-scaffold keeps `AGENT.md` as the single source of truth for every agent, with nothing but a one-line wrapper file (`CLAUDE.md`, `.cursorrules`, etc.) per agent on top of it. If access to a particular model or agent gets cut off, your team's conventions and working context stay intact in `AGENT.md`, and you can switch to a different agent immediately just by swapping the wrapper file. Vendor lock-in isn't an abstract worry — it's something that actually happens.
+This is exactly why project-scaffold keeps `AGENT.md` as the single source of truth for every agent, with nothing but a one-line wrapper file (`CLAUDE.md`, `.cursorrules`, etc.) per agent on top of it. If access to a particular model or agent gets cut off, your team's conventions and working context stay intact in `AGENT.md`, and you can switch to a different agent immediately just by swapping the wrapper file. Vendor lock-in isn't an abstract worry — it's something that actually happens. Tools like [cc-switch](https://github.com/farion1231/cc-switch) make the switching itself frictionless — project-scaffold ensures that whatever agent you switch to already knows your project.
 
 ### Sources
 
