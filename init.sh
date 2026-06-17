@@ -33,7 +33,7 @@ fi
 # ════════════════════════════════════════════════
 if [ "$_mode" = "2" ]; then
   echo ""
-  read -p "📁 기존 프로젝트 루트 경로: " _target_input
+  read -r -p "📁 기존 프로젝트 루트 경로: " _target_input
   if [ -z "$_target_input" ]; then
     echo "❌ 경로를 입력해주세요. (예: /Users/me/workspace/MyProject)"
     exit 1
