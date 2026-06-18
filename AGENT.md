@@ -11,6 +11,7 @@
 |---|---|---|
 | `/setup` | 프로젝트 초기 인터뷰 (14개 카테고리 컨벤션 생성) | ❌ 지금 실행 가능 |
 | `/capture` | 회의·결정·개발 기록 → raw/ 저장 | ❌ 지금 실행 가능 |
+| `/devlog` | 세션 자동 분석 → dev-log 초안 생성·확인 | ❌ 지금 실행 가능 |
 | `/ingest` | raw/ 파일을 wiki/ 에 반영 | ❌ 지금 실행 가능 |
 | `/query` | wiki/ 기반 질의응답 | ⚠️ wiki/가 없으면 제한적 |
 | `/code-lint` | 컨벤션 기반 코드 검증 | ✅ /setup 후 권장 |
@@ -30,6 +31,7 @@
 
 - `/setup` → `skills/setup/SKILL.md`
 - `/capture` → `skills/capture/SKILL.md`
+- `/devlog` → `skills/devlog/SKILL.md`
 - `/ingest` → `skills/ingest/SKILL.md`
 - `/query` → `skills/query/SKILL.md`
 - `/code-lint` → `skills/code-lint/SKILL.md`

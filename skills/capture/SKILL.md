@@ -1,5 +1,5 @@
 ---
-description: "회의·결정·개발 과정을 raw/에 저장한다. ingest_status: pending으로 마킹해 /ingest가 자동 탐지. 회의 직후, 아키텍처 결정 시, dev-log 작성 시 사용."
+description: "회의·결정 내용을 raw/에 저장한다. ingest_status: pending으로 마킹해 /ingest가 자동 탐지. 회의 직후, 아키텍처 결정 시 사용. dev-log는 /devlog 사용."
 ---
 
 # /capture — 회의·결정·개발 기록 스킬
@@ -21,14 +21,14 @@ description: "회의·결정·개발 과정을 raw/에 저장한다. ingest_stat
 |---|---|---|
 | `meeting` | `/capture meeting` | `raw/meetings/` |
 | `decision` | `/capture decision` | `raw/decisions/` |
-| `dev-log` | `/capture dev-log` | `raw/dev-logs/` |
 
 인자가 없으면 묻는다:
 
 > "어떤 내용을 기록할까요?
 > 1. meeting — 회의·논의 내용
-> 2. decision — 아키텍처·기술 결정
-> 3. dev-log — 개발 과정·회고"
+> 2. decision — 아키텍처·기술 결정"
+
+dev-log는 `/devlog`를 사용한다.
 
 ---
 
@@ -54,16 +54,6 @@ description: "회의·결정·개발 과정을 raw/에 저장한다. ingest_stat
 5. 재검토 조건이 있어? (예: "사용자 1만 명 초과 시")
 
 **decision은 ambiguity-check 적용**: `skills/setup/ambiguity-check.md` 기준으로 이유와 트레이드오프가 구체적인지 확인. 모호하면 follow-up.
-
-### dev-log 타입
-
-다음을 한 번에 묻는다:
-
-1. 기록 제목이 뭐야? (파일명 슬러그로 사용됨)
-2. 오늘 무엇을 했어?
-3. 막혔던 부분이 있어? 어떻게 해결했어?
-4. 다음에 할 일은?
-5. 오늘 배운 것·깨달은 것이 있어?
 
 ---
 
