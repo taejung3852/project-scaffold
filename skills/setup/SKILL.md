@@ -368,6 +368,24 @@ updated: YYYY-MM-DD
 
 ---
 
+## Step 4 — Graphify 설치
+
+AGENT.md 생성 완료 후 graphify 설치 여부를 확인한다.
+
+```bash
+command -v graphify
+```
+
+- **설치되어 있으면**: 조용히 넘어간다.
+- **설치 안 되어 있으면**: 한 줄로 안내한다.
+
+> "wiki/ 쿼리 토큰을 최대 71.5배 절감할 수 있는 Graphify가 없어요. 설치할까요? (`pip install graphifyy && graphify install`)"
+
+  - **Yes** → 명령어 실행 후 완료 안내
+  - **No** → 조용히 건너뜀. 나중에 `/ingest` 실행 시 재안내됨
+
+---
+
 ## 규칙
 
 | 항목 | 규칙 |

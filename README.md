@@ -257,13 +257,14 @@ This is exactly why project-scaffold keeps `AGENT.md` as the single source of tr
 
 ## System Architecture
 
-Made up of 11 skills, 4 Python scripts, 2 git hooks, and a dual source of truth: `AGENT.md` + `SOUL.md`.
+Made up of 12 skills, 4 Python scripts, 2 git hooks, and a dual source of truth: `AGENT.md` + `SOUL.md`.
 
 ```text
 User
   │
   ├─ /setup      ─── generates wiki/conventions/ (14 pages) + AGENT.md + SOUL.md
-  ├─ /capture    ─── saves to raw/ (meetings · decisions · dev-logs)
+  ├─ /capture    ─── saves to raw/ (meetings · decisions)
+  ├─ /devlog     ─── session-aware dev log (auto-drafts from git + conversation context)
   ├─ /ingest     ─── raw/ → wiki/ integration
   ├─ /query      ─── wiki/-grounded Q&A
   ├─ /report     ─── meetings/interviews/ADRs/sprints → internal notes + team-shared doc
@@ -297,7 +298,8 @@ SOUL.md   ─── developer's AI assistant persona (project-agnostic, permanen
 | Skill | When | Note |
 |---|---|---|
 | `/setup` | Define conventions at project kickoff | Once, at the start |
-| `/capture` | Record meetings, decisions, dev work | Auto-suggests running `/ingest` right after |
+| `/capture` | Record meetings and decisions | Auto-suggests running `/ingest` right after |
+| `/devlog` | Session-aware dev log | Drafts from git log + conversation; confirm or fill gaps only |
 | `/ingest` | Apply raw/ files into the wiki | Auto-suggested when `/capture` finishes |
 | `/query` | Wiki-grounded Q&A | As needed |
 | `/report` | Generate meeting notes / ADR / sprint summaries | As needed |
@@ -367,9 +369,27 @@ Saves important content that comes up during work to `raw/`.
 |---|---|---|
 | `meeting` | `raw/meetings/` | Meeting content, decisions, action items |
 | `decision` | `raw/decisions/` | Architecture/technical decisions, trade-offs, revisit conditions |
-| `dev-log` | `raw/dev-logs/` | Development process, problem-solving, retrospectives |
 
 Saved files get `ingest_status: "⏳ pending"`, which `/ingest` automatically detects.
+
+For dev-logs, use `/devlog` instead.
+
+---
+
+### `/devlog` — Session-Aware Dev Log
+
+Unlike `/capture`, which saves content as-is, `/devlog` reads the current session first — git log, changed files, conversation context — and drafts a dev-log entry before asking anything.
+
+```text
+Auto-collect: git log (today) + changed files + conversation context
+  → Claude drafts all 5 fields (title, what was done, blockers, next steps, learnings)
+  → Show draft with ✅ (confident) / ❓ (needs confirmation) markers
+  → User confirms or fills in gaps only
+  → Save to raw/dev-logs/YYYY-MM-DD_dev-log_<slug>.md
+  → Offer to run /ingest
+```
+
+Questions come with Claude's best guess pre-filled. If a field can't be inferred, it's left blank — never forced.
 
 ---
 
@@ -661,7 +681,7 @@ graph LR
 
     %% Directories
     Root --> Scripts["📁 scripts/<br/>(Skill Evolution Python Layer)"]
-    Root --> Skills["📁 skills/<br/>(11 Agent Skills)"]
+    Root --> Skills["📁 skills/<br/>(12 Agent Skills)"]
     Root --> Hooks["📁 .hooks/<br/>(Git Hooks)"]
     Root --> Wiki["📁 wiki/<br/>(Agent Knowledge Base)"]
     Root --> Raw["📁 raw/<br/>(Immutable Raw Sources)"]
@@ -710,7 +730,8 @@ graph LR
 │   ├── setup/
 │   │   ├── SKILL.md                ← 14-category interview flow
 │   │   └── ambiguity-check.md      ← ambiguity-evaluation sub-skill
-│   ├── capture/SKILL.md            ← capture meetings/decisions/dev-logs
+│   ├── capture/SKILL.md            ← capture meetings/decisions
+│   ├── devlog/SKILL.md             ← session-aware dev log (auto-drafts from git + conversation)
 │   ├── ingest/SKILL.md             ← raw/ → wiki/ integration
 │   ├── query/SKILL.md              ← wiki-grounded Q&A
 │   ├── report/SKILL.md             ← meetings/interviews/ADR → internal notes + team-shared
@@ -757,7 +778,7 @@ graph LR
 
 | Item | Status |
 |---|---|
-| 11 skill files (setup·capture·ingest·query·report·code-lint·wiki-lint·dashboard·curate·help·handoff) | ✅ Done |
+| 12 skill files (setup·capture·devlog·ingest·query·report·code-lint·wiki-lint·dashboard·curate·help·handoff) | ✅ Done |
 | ambiguity-check sub-skill | ✅ Done |
 | 2 git hooks (convention-check·devlog-auto) | ✅ Done |
 | init.sh — multi-agent selection + automatic path setup (8 agents supported) | ✅ Done |

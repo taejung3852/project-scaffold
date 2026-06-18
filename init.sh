@@ -485,6 +485,16 @@ fi
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🎉 초기화 완료!"
+
+# 기존 프로젝트 모드: project-scaffold 디렉토리 자동 삭제
+if [ "$_mode" = "2" ] && [ "$SCRIPT_DIR" != "$TARGET_DIR" ]; then
+  echo ""
+  echo "🗑  project-scaffold 설치 디렉토리 삭제 중..."
+  echo "   ($SCRIPT_DIR)"
+  rm -rf "$SCRIPT_DIR"
+  echo "  ✅ 삭제 완료 — 모든 파일은 $TARGET_DIR 에 있습니다"
+fi
+
 echo ""
 echo "다음 단계:"
 echo ""
