@@ -159,32 +159,45 @@ _setup_continue() {
 }
 
 _setup_hermes() {
-  echo "  📦 Hermes 외부 스킬 디렉토리 등록 중..."
-  mkdir -p "$HOME/.hermes"
-  local config_file="$HOME/.hermes/config.yaml"
-  local skills_abs
-  skills_abs="$(pwd)/skills"
-  if grep -qF "$skills_abs" "$config_file" 2>/dev/null; then
-    echo "  ✅ Hermes: 이미 등록됨 — 건너뜀"
+  echo "  📦 Hermes 스킬 심링크 설정 중..."
+  mkdir -p .hermes/skills
+  for skill_dir in skills/*/; do
+    skill_name=$(basename "$skill_dir")
+    [ -f "${skill_dir}SKILL.md" ] || continue
+    ln -sf "$(pwd)/${skill_dir}" ".hermes/skills/${skill_name}" 2>/dev/null || true
+  done
+  echo "  ✅ Hermes: .hermes/skills/ 심링크 완료"
+
+  local config_file="cli-config.yaml"
+  if grep -qF ".hermes/skills" "$config_file" 2>/dev/null; then
+    echo "  ✅ Hermes: cli-config.yaml 이미 등록됨 — 건너뜀"
     return
   fi
-  python3 - "$config_file" "$skills_abs" <<'PYEOF'
+  if [ -f "$config_file" ]; then
+    python3 - "$config_file" <<'PYEOF'
 import sys, re, os
-cfg, path = sys.argv[1], sys.argv[2]
-txt = open(cfg).read() if os.path.exists(cfg) else ""
+cfg = sys.argv[1]
+txt = open(cfg).read()
+entry = '    - .hermes/skills/\n'
 if re.search(r'^  external_dirs:', txt, re.MULTILINE):
     txt = re.sub(r'(  external_dirs:(?:\n    - [^\n]+)*)',
-                 r'\1\n    - ' + path, txt)
+                 r'\1\n' + entry.rstrip('\n'), txt)
 elif re.search(r'^skills:', txt, re.MULTILINE):
-    txt = re.sub(r'^(skills:)', r'\1\n  external_dirs:\n    - ' + path,
+    txt = re.sub(r'^(skills:)', r'\1\n  external_dirs:\n' + entry.rstrip('\n'),
                  txt, flags=re.MULTILINE)
 else:
-    if txt and not txt.endswith('\n'):
-        txt += '\n'
-    txt += 'skills:\n  external_dirs:\n    - ' + path + '\n'
+    if not txt.endswith('\n'): txt += '\n'
+    txt += 'skills:\n  external_dirs:\n' + entry
 open(cfg, 'w').write(txt)
 PYEOF
-  echo "  ✅ Hermes: ~/.hermes/config.yaml에 외부 스킬 경로 등록"
+  else
+    cat > "$config_file" << 'EOF'
+skills:
+  external_dirs:
+    - .hermes/skills/
+EOF
+  fi
+  echo "  ✅ Hermes: cli-config.yaml에 .hermes/skills/ 등록"
 }
 
 _setup_aider() {
@@ -238,7 +251,7 @@ _run_agent_selection() {
       "4  Windsurf        → .windsurf/skills/" \
       "5  Cursor          → .cursor/rules/ + .cursorrules" \
       "6  Continue.dev    → .continue/prompts/" \
-      "7  Hermes          → ~/.hermes/config.yaml" \
+      "7  Hermes          → .hermes/skills/ + cli-config.yaml" \
       "8  Aider           → .aider.conf.yml") || true
 
     [ -z "$selected_raw" ] && selected_raw="1  Claude Code     → .claude/skills/"
@@ -268,7 +281,7 @@ _run_agent_selection() {
     echo "  4) Windsurf        → .windsurf/skills/"
     echo "  5) Cursor          → .cursor/rules/ + .cursorrules"
     echo "  6) Continue.dev    → .continue/prompts/"
-    echo "  7) Hermes          → ~/.hermes/config.yaml"
+    echo "  7) Hermes          → .hermes/skills/ + cli-config.yaml"
     echo "  8) Aider           → .aider.conf.yml"
     echo ""
     read -r -p "선택 [기본값: 1 (Claude Code)]: " agent_raw
