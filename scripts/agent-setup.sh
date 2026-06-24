@@ -164,9 +164,10 @@ _setup_hermes() {
   for skill_dir in skills/*/; do
     skill_name=$(basename "$skill_dir")
     [ -f "${skill_dir}SKILL.md" ] || continue
-    ln -sf "$(pwd)/${skill_dir}" ".hermes/skills/${skill_name}" 2>/dev/null || true
+    # 상대 경로 사용 — Docker 마운트 후 컨테이너 내부에서도 해석 가능
+    ln -sf "../../${skill_dir}" ".hermes/skills/${skill_name}" 2>/dev/null || true
   done
-  echo "  ✅ Hermes: .hermes/skills/ 심링크 완료"
+  echo "  ✅ Hermes: .hermes/skills/ 심링크 완료 (상대 경로)"
 
   # cli-config.yaml — PyYAML로 안전하게 병합
   local config_file="cli-config.yaml"
@@ -182,16 +183,18 @@ data = {}
 if os.path.exists(cfg):
     with open(cfg) as f:
         data = yaml.safe_load(f) or {}
+
 skills = data.setdefault("skills", {})
 dirs = skills.setdefault("external_dirs", [])
-entry = ".hermes/skills/"
-if entry not in dirs:
-    dirs.append(entry)
-    with open(cfg, "w") as f:
-        yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
-    print(f"  ✅ Hermes: {cfg}에 .hermes/skills/ 등록")
-else:
-    print(f"  ✅ Hermes: {cfg} 이미 등록됨 — 건너뜀")
+if ".hermes/skills/" not in dirs:
+    dirs.append(".hermes/skills/")
+
+terminal = data.setdefault("terminal", {})
+terminal["docker_mount_cwd_to_workspace"] = True
+
+with open(cfg, "w") as f:
+    yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
+print(f"  ✅ Hermes: {cfg} 업데이트 (skills.external_dirs + terminal.docker_mount_cwd_to_workspace)")
 PYEOF
 
   # .hermes.md — 컨텍스트 파일 (AGENT.md 임포트)
