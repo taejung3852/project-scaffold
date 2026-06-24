@@ -8,6 +8,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TODAY=$(date +%Y-%m-%d)
 
+# shellcheck source=scripts/agent-setup.sh
+source "${SCRIPT_DIR}/scripts/agent-setup.sh"
+
 echo "🚀 project-scaffold 초기화"
 echo ""
 
@@ -16,15 +19,13 @@ echo ""
 # ════════════════════════════════════════════════
 echo "📌 설치 모드를 선택하세요"
 echo ""
-echo "  1) 새 프로젝트   — 현재 디렉토리에 하네스 초기화"
-echo "     (GitHub 템플릿으로 생성한 레포에서 실행)"
-echo "  2) 기존 프로젝트 — 이미 존재하는 프로젝트에 하네스 설치"
-echo "     (harness 파일 복사 후 초기화)"
-echo ""
-read -r -p "선택 [기본값: 1]: " _mode
-[ -z "$_mode" ] && _mode="1"
+_mode_label=$(_choose_one \
+  "1  새 프로젝트   — 현재 디렉토리에 하네스 초기화" \
+  "2  기존 프로젝트 — 이미 존재하는 프로젝트에 하네스 설치")
+_mode="${_mode_label%%[[:space:]]*}"
+
 if [ "$_mode" != "1" ] && [ "$_mode" != "2" ]; then
-  echo "❌ 잘못된 입력입니다. 1 또는 2만 입력해주세요."
+  echo "❌ 잘못된 입력입니다."
   exit 1
 fi
 
@@ -33,7 +34,7 @@ fi
 # ════════════════════════════════════════════════
 if [ "$_mode" = "2" ]; then
   echo ""
-  read -r -p "📁 기존 프로젝트 루트 경로: " _target_input
+  _target_input=$(_input "/Users/me/workspace/MyProject")
   if [ -z "$_target_input" ]; then
     echo "❌ 경로를 입력해주세요. (예: /Users/me/workspace/MyProject)"
     exit 1
@@ -63,8 +64,7 @@ if [ "$_mode" = "2" ]; then
     local dst="$TARGET_DIR/$name"
     [ -d "$src" ] || return 0
     if [ -d "$dst" ]; then
-      read -p "  ⚠️  $name/ 이미 존재합니다. 덮어쓸까요? [y/N]: " _ow
-      if [ "$_ow" = "y" ] || [ "$_ow" = "Y" ]; then
+      if _confirm "⚠️  $name/ 이미 존재합니다. 덮어쓸까요?"; then
         cp -r "$src/." "$dst/"
         echo "  ✅ $name/ 덮어쓰기 완료"
       else
@@ -155,8 +155,7 @@ fi
 _install_hook() {
   local src="$1" dst="$2" label="$3"
   if [ -f "$dst" ]; then
-    read -r -p "  ⚠️  기존 $(basename "$dst") hook이 있습니다. 덮어쓸까요? [y/N]: " _ow_hook
-    if [ "$_ow_hook" != "y" ] && [ "$_ow_hook" != "Y" ]; then
+    if ! _confirm "⚠️  기존 $(basename "$dst") hook이 있습니다. 덮어쓸까요?"; then
       echo "  ⏭  $(basename "$dst") hook 건너뜀 (기존 유지)"
       return
     fi
@@ -281,183 +280,7 @@ fi
 # ════════════════════════════════════════════════
 # 에이전트 선택
 # ════════════════════════════════════════════════
-echo ""
-echo "🤖 사용할 AI 에이전트를 선택하세요"
-echo "   (번호를 쉼표로 구분, 복수 선택 가능. 예: 1,3,4  /  all 입력 시 전체)"
-echo ""
-echo "  1) Claude Code     → .claude/skills/"
-echo "  2) Codex CLI       → .agents/skills/"
-echo "  3) Antigravity     → .agents/skills/  (Codex CLI와 경로 공유)"
-echo "  4) Windsurf        → .windsurf/skills/"
-echo "  5) Cursor          → .cursor/rules/   (변환 생성)"
-echo "  6) Continue.dev    → .continue/prompts/  (변환 생성)"
-echo "  7) Hermes          → ~/.hermes/config.yaml 외부 디렉토리 등록"
-echo "  8) Aider           → .aider.conf.yml read 목록 추가"
-echo ""
-read -p "선택 [기본값: 1 (Claude Code)]: " agent_raw
-
-[ -z "$agent_raw" ] && agent_raw="1"
-[ "$agent_raw" = "all" ] && agent_raw="1,2,3,4,5,6,7,8"
-
-# ── 에이전트별 설정 함수 ──
-
-_setup_claude_code() {
-  echo "  📦 Claude Code 스킬 심링크 설정 중..."
-  mkdir -p .claude/skills
-  for skill_dir in skills/*/; do
-    skill_name=$(basename "$skill_dir")
-    [ -f "${skill_dir}SKILL.md" ] || continue
-    ln -sf "$(pwd)/${skill_dir}" ".claude/skills/${skill_name}" 2>/dev/null || true
-  done
-  echo "  ✅ Claude Code: .claude/skills/ 심링크 완료"
-}
-
-_setup_agents_dir() {
-  local label="$1"
-  echo "  📦 ${label} 스킬 심링크 설정 중..."
-  mkdir -p .agents/skills
-  for skill_dir in skills/*/; do
-    skill_name=$(basename "$skill_dir")
-    [ -f "${skill_dir}SKILL.md" ] || continue
-    ln -sf "$(pwd)/${skill_dir}" ".agents/skills/${skill_name}" 2>/dev/null || true
-  done
-  echo "  ✅ ${label}: .agents/skills/ 심링크 완료"
-}
-
-_setup_windsurf() {
-  echo "  📦 Windsurf 스킬 심링크 설정 중..."
-  mkdir -p .windsurf/skills
-  for skill_dir in skills/*/; do
-    skill_name=$(basename "$skill_dir")
-    [ -f "${skill_dir}SKILL.md" ] || continue
-    ln -sf "$(pwd)/${skill_dir}" ".windsurf/skills/${skill_name}" 2>/dev/null || true
-  done
-  echo "  ✅ Windsurf: .windsurf/skills/ 심링크 완료"
-}
-
-_setup_cursor() {
-  echo "  📦 Cursor Rules 변환 생성 중..."
-  mkdir -p .cursor/rules
-  for skill_dir in skills/*/; do
-    skill_name=$(basename "$skill_dir")
-    skill_file="${skill_dir}SKILL.md"
-    [ -f "$skill_file" ] || continue
-    desc=$(grep -m1 "^description:" "$skill_file" | sed 's/^description: *//;s/^"//;s/"$//' 2>/dev/null || echo "/${skill_name} 스킬")
-    {
-      echo "---"
-      echo "description: \"${desc}\""
-      echo "---"
-      echo ""
-      cat "$skill_file"
-    } > ".cursor/rules/${skill_name}.mdc"
-  done
-  echo "  ✅ Cursor: .cursor/rules/*.mdc 생성 완료"
-}
-
-_setup_continue() {
-  echo "  📦 Continue.dev 프롬프트 변환 생성 중..."
-  mkdir -p .continue/prompts
-  for skill_dir in skills/*/; do
-    skill_name=$(basename "$skill_dir")
-    skill_file="${skill_dir}SKILL.md"
-    [ -f "$skill_file" ] || continue
-    desc=$(grep -m1 "^description:" "$skill_file" | sed 's/^description: *//;s/^"//;s/"$//' 2>/dev/null || echo "/${skill_name} 스킬")
-    {
-      echo "---"
-      echo "name: ${skill_name}"
-      echo "description: \"${desc}\""
-      echo "invokable: true"
-      echo "---"
-      echo ""
-      cat "$skill_file"
-    } > ".continue/prompts/${skill_name}.md"
-  done
-  echo "  ✅ Continue.dev: .continue/prompts/*.md 생성 완료"
-}
-
-_setup_hermes() {
-  echo "  📦 Hermes 외부 스킬 디렉토리 등록 중..."
-  mkdir -p "$HOME/.hermes"
-  local config_file="$HOME/.hermes/config.yaml"
-  local skills_abs
-  skills_abs="$(pwd)/skills"
-  if grep -qF "$skills_abs" "$config_file" 2>/dev/null; then
-    echo "  ✅ Hermes: 이미 등록됨 — 건너뜀"
-    return
-  fi
-  python3 - "$config_file" "$skills_abs" <<'PYEOF'
-import sys, re, os
-cfg, path = sys.argv[1], sys.argv[2]
-txt = open(cfg).read() if os.path.exists(cfg) else ""
-if re.search(r'^  external_dirs:', txt, re.MULTILINE):
-    txt = re.sub(r'(  external_dirs:(?:\n    - [^\n]+)*)',
-                 r'\1\n    - ' + path, txt)
-elif re.search(r'^skills:', txt, re.MULTILINE):
-    txt = re.sub(r'^(skills:)', r'\1\n  external_dirs:\n    - ' + path,
-                 txt, flags=re.MULTILINE)
-else:
-    if txt and not txt.endswith('\n'):
-        txt += '\n'
-    txt += 'skills:\n  external_dirs:\n    - ' + path + '\n'
-open(cfg, 'w').write(txt)
-PYEOF
-  echo "  ✅ Hermes: ~/.hermes/config.yaml에 외부 스킬 경로 등록"
-}
-
-_setup_aider() {
-  echo "  📦 Aider 설정 중..."
-  local config_file=".aider.conf.yml"
-  local new_skills=()
-  for skill_dir in skills/*/; do
-    local skill_file="${skill_dir}SKILL.md"
-    [ -f "$skill_file" ] || continue
-    grep -qF "$skill_file" "$config_file" 2>/dev/null || new_skills+=("$skill_file")
-  done
-  if [ ${#new_skills[@]} -eq 0 ]; then
-    echo "  ✅ Aider: 이미 등록됨 — 건너뜀"
-    return
-  fi
-  python3 - "$config_file" "${new_skills[@]}" <<'PYEOF'
-import sys, re, os
-cfg, *skills = sys.argv[1], *sys.argv[2:]
-txt = open(cfg).read() if os.path.exists(cfg) else ""
-items = ''.join(f'  - {s}\n' for s in skills)
-if re.search(r'^read:', txt, re.MULTILINE):
-    txt = re.sub(r'^(read:(?:\n  - [^\n]+)*)',
-                 lambda m: m.group(0) + '\n' + items.rstrip('\n'),
-                 txt, flags=re.MULTILINE)
-else:
-    if txt and not txt.endswith('\n'):
-        txt += '\n'
-    txt += 'read:\n' + items
-open(cfg, 'w').write(txt)
-PYEOF
-  echo "  ✅ Aider: .aider.conf.yml read 목록에 스킬 추가"
-}
-
-# ── 선택 파싱 및 실행 ──
-echo ""
-echo "🔧 에이전트 스킬 설정 중..."
-
-_AGENTS_LABEL=""
-IFS=',' read -ra _agent_nums <<< "$agent_raw"
-
-for _num in "${_agent_nums[@]}"; do
-  _num=$(echo "$_num" | tr -d ' ')
-  case "$_num" in
-    1) _setup_claude_code ;;
-    2) [ -z "$_AGENTS_LABEL" ] && _AGENTS_LABEL="Codex CLI" || _AGENTS_LABEL="${_AGENTS_LABEL} / Codex CLI" ;;
-    3) [ -z "$_AGENTS_LABEL" ] && _AGENTS_LABEL="Antigravity" || _AGENTS_LABEL="${_AGENTS_LABEL} / Antigravity" ;;
-    4) _setup_windsurf ;;
-    5) _setup_cursor ;;
-    6) _setup_continue ;;
-    7) _setup_hermes ;;
-    8) _setup_aider ;;
-    *) echo "  ⚠️  알 수 없는 번호: ${_num} — 건너뜁니다" ;;
-  esac
-done
-
-[ -n "$_AGENTS_LABEL" ] && _setup_agents_dir "$_AGENTS_LABEL"
+_run_agent_selection
 
 # ════════════════════════════════════════════════
 # Graphify 설정
