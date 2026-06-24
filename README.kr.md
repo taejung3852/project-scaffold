@@ -106,10 +106,10 @@ bash init.sh
 | 4 | Windsurf | `.windsurf/skills/` | 심링크 |
 | 5 | Cursor | `.cursor/rules/` | `.mdc` 변환 생성 |
 | 6 | Continue.dev | `.continue/prompts/` | `.md` 변환 생성 |
-| 7 | Hermes | `~/.hermes/config.yaml` | 외부 디렉토리 등록 |
+| 7 | Hermes | `.hermes/skills/` | 심링크 + `cli-config.yaml` `external_dirs` 등록 + `.hermes.md` |
 | 8 | Aider | `.aider.conf.yml` | `read:` 목록 추가 |
 
-나중에 에이전트를 추가하거나 바꾸고 싶으면 `bash init.sh`를 다시 실행하면 된다.
+나중에 에이전트를 추가하거나 바꾸고 싶으면 `bash add-agent.sh`를 실행하면 된다.
 
 `/setup`은 중간에 중단해도 완료된 카테고리가 보존된다. 나중에 이어서 진행하면 된다.
 

@@ -106,10 +106,10 @@ Running `init.sh` lets you choose which AI agent(s) to wire up. Multiple selecti
 | 4 | Windsurf | `.windsurf/skills/` | Symlink |
 | 5 | Cursor | `.cursor/rules/` | Generates a converted `.mdc` |
 | 6 | Continue.dev | `.continue/prompts/` | Generates a converted `.md` |
-| 7 | Hermes | `~/.hermes/config.yaml` | Registers an external directory |
+| 7 | Hermes | `.hermes/skills/` | Symlink + `cli-config.yaml` `external_dirs` + `.hermes.md` |
 | 8 | Aider | `.aider.conf.yml` | Adds to the `read:` list |
 
-To add or change agents later, just run `bash init.sh` again.
+To add or change agents later, run `bash add-agent.sh`.
 
 `/setup` preserves whatever categories are already complete if you stop partway through — pick it back up later.
 

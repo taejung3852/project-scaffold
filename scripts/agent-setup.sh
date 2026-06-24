@@ -168,36 +168,39 @@ _setup_hermes() {
   done
   echo "  ✅ Hermes: .hermes/skills/ 심링크 완료"
 
+  # cli-config.yaml — PyYAML로 안전하게 병합
   local config_file="cli-config.yaml"
-  if grep -qF ".hermes/skills" "$config_file" 2>/dev/null; then
-    echo "  ✅ Hermes: cli-config.yaml 이미 등록됨 — 건너뜀"
-    return
-  fi
-  if [ -f "$config_file" ]; then
-    python3 - "$config_file" <<'PYEOF'
-import sys, re, os
+  python3 - "$config_file" <<'PYEOF'
+import sys, os
 cfg = sys.argv[1]
-txt = open(cfg).read()
-entry = '    - .hermes/skills/\n'
-if re.search(r'^  external_dirs:', txt, re.MULTILINE):
-    txt = re.sub(r'(  external_dirs:(?:\n    - [^\n]+)*)',
-                 r'\1\n' + entry.rstrip('\n'), txt)
-elif re.search(r'^skills:', txt, re.MULTILINE):
-    txt = re.sub(r'^(skills:)', r'\1\n  external_dirs:\n' + entry.rstrip('\n'),
-                 txt, flags=re.MULTILINE)
+try:
+    import yaml
+except ImportError:
+    print("  ⚠️  PyYAML 없음 — pip install pyyaml 후 재실행")
+    sys.exit(0)
+data = {}
+if os.path.exists(cfg):
+    with open(cfg) as f:
+        data = yaml.safe_load(f) or {}
+skills = data.setdefault("skills", {})
+dirs = skills.setdefault("external_dirs", [])
+entry = ".hermes/skills/"
+if entry not in dirs:
+    dirs.append(entry)
+    with open(cfg, "w") as f:
+        yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
+    print(f"  ✅ Hermes: {cfg}에 .hermes/skills/ 등록")
 else:
-    if not txt.endswith('\n'): txt += '\n'
-    txt += 'skills:\n  external_dirs:\n' + entry
-open(cfg, 'w').write(txt)
+    print(f"  ✅ Hermes: {cfg} 이미 등록됨 — 건너뜀")
 PYEOF
-  else
-    cat > "$config_file" << 'EOF'
-skills:
-  external_dirs:
-    - .hermes/skills/
-EOF
+
+  # .hermes.md — 컨텍스트 파일 (AGENT.md 임포트)
+  local ctx_file=".hermes.md"
+  if [ -f "$ctx_file" ]; then
+    _confirm "⚠️  $ctx_file 이미 존재합니다. 덮어쓸까요?" || return 0
   fi
-  echo "  ✅ Hermes: cli-config.yaml에 .hermes/skills/ 등록"
+  printf '@AGENT.md\n' > "$ctx_file"
+  echo "  ✅ Hermes: .hermes.md 생성 (AGENT.md 자동 임포트)"
 }
 
 _setup_aider() {
@@ -251,7 +254,7 @@ _run_agent_selection() {
       "4  Windsurf        → .windsurf/skills/" \
       "5  Cursor          → .cursor/rules/ + .cursorrules" \
       "6  Continue.dev    → .continue/prompts/" \
-      "7  Hermes          → .hermes/skills/ + cli-config.yaml" \
+      "7  Hermes          → .hermes/skills/ + cli-config.yaml + .hermes.md" \
       "8  Aider           → .aider.conf.yml") || true
 
     [ -z "$selected_raw" ] && selected_raw="1  Claude Code     → .claude/skills/"
@@ -281,7 +284,7 @@ _run_agent_selection() {
     echo "  4) Windsurf        → .windsurf/skills/"
     echo "  5) Cursor          → .cursor/rules/ + .cursorrules"
     echo "  6) Continue.dev    → .continue/prompts/"
-    echo "  7) Hermes          → .hermes/skills/ + cli-config.yaml"
+    echo "  7) Hermes          → .hermes/skills/ + cli-config.yaml + .hermes.md"
     echo "  8) Aider           → .aider.conf.yml"
     echo ""
     read -r -p "선택 [기본값: 1 (Claude Code)]: " agent_raw
