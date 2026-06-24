@@ -159,32 +159,70 @@ _setup_continue() {
 }
 
 _setup_hermes() {
-  echo "  📦 Hermes 외부 스킬 디렉토리 등록 중..."
-  mkdir -p "$HOME/.hermes"
-  local config_file="$HOME/.hermes/config.yaml"
+  echo "  📦 Hermes 스킬 심링크 설정 중..."
+  mkdir -p .hermes/skills
+  for skill_dir in skills/*/; do
+    skill_name=$(basename "$skill_dir")
+    [ -f "${skill_dir}SKILL.md" ] || continue
+    rm -f ".hermes/skills/${skill_name}"
+    ln -sf "../../${skill_dir}" ".hermes/skills/${skill_name}"
+  done
+  echo "  ✅ Hermes: .hermes/skills/ 심링크 완료"
+
+  # ~/.hermes/config.yaml — 전역 external_dirs에 절대 경로 등록 (스킬 탐색용)
   local skills_abs
   skills_abs="$(pwd)/skills"
-  if grep -qF "$skills_abs" "$config_file" 2>/dev/null; then
-    echo "  ✅ Hermes: 이미 등록됨 — 건너뜀"
-    return
-  fi
-  python3 - "$config_file" "$skills_abs" <<'PYEOF'
-import sys, re, os
+  python3 - "$HOME/.hermes/config.yaml" "$skills_abs" <<'PYEOF'
+import sys, os
 cfg, path = sys.argv[1], sys.argv[2]
-txt = open(cfg).read() if os.path.exists(cfg) else ""
-if re.search(r'^  external_dirs:', txt, re.MULTILINE):
-    txt = re.sub(r'(  external_dirs:(?:\n    - [^\n]+)*)',
-                 r'\1\n    - ' + path, txt)
-elif re.search(r'^skills:', txt, re.MULTILINE):
-    txt = re.sub(r'^(skills:)', r'\1\n  external_dirs:\n    - ' + path,
-                 txt, flags=re.MULTILINE)
+try:
+    import yaml
+except ImportError:
+    print("  ⚠️  PyYAML 없음 — pip install pyyaml 후 재실행")
+    sys.exit(0)
+os.makedirs(os.path.dirname(cfg), exist_ok=True)
+data = {}
+if os.path.exists(cfg):
+    with open(cfg) as f:
+        data = yaml.safe_load(f) or {}
+skills = data.setdefault("skills", {})
+dirs = skills.setdefault("external_dirs", [])
+if path not in dirs:
+    dirs.append(path)
+    with open(cfg, "w") as f:
+        yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
+    print(f"  ✅ Hermes: ~/.hermes/config.yaml에 {path} 등록")
 else:
-    if txt and not txt.endswith('\n'):
-        txt += '\n'
-    txt += 'skills:\n  external_dirs:\n    - ' + path + '\n'
-open(cfg, 'w').write(txt)
+    print(f"  ✅ Hermes: ~/.hermes/config.yaml 이미 등록됨 — 건너뜀")
 PYEOF
-  echo "  ✅ Hermes: ~/.hermes/config.yaml에 외부 스킬 경로 등록"
+
+  # cli-config.yaml — docker_mount_cwd_to_workspace 설정 (Docker 마운트용)
+  python3 - "cli-config.yaml" <<'PYEOF'
+import sys, os
+cfg = sys.argv[1]
+try:
+    import yaml
+except ImportError:
+    sys.exit(0)
+data = {}
+if os.path.exists(cfg):
+    with open(cfg) as f:
+        data = yaml.safe_load(f) or {}
+terminal = data.setdefault("terminal", {})
+if not terminal.get("docker_mount_cwd_to_workspace"):
+    terminal["docker_mount_cwd_to_workspace"] = True
+    with open(cfg, "w") as f:
+        yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
+    print("  ✅ Hermes: cli-config.yaml에 docker_mount_cwd_to_workspace: true 설정")
+PYEOF
+
+  # .hermes.md — 컨텍스트 파일 (AGENT.md 임포트)
+  local ctx_file=".hermes.md"
+  if [ -f "$ctx_file" ]; then
+    _confirm "⚠️  $ctx_file 이미 존재합니다. 덮어쓸까요?" || return 0
+  fi
+  printf '@AGENT.md\n' > "$ctx_file"
+  echo "  ✅ Hermes: .hermes.md 생성 (AGENT.md 자동 임포트)"
 }
 
 _setup_aider() {
@@ -238,7 +276,7 @@ _run_agent_selection() {
       "4  Windsurf        → .windsurf/skills/" \
       "5  Cursor          → .cursor/rules/ + .cursorrules" \
       "6  Continue.dev    → .continue/prompts/" \
-      "7  Hermes          → ~/.hermes/config.yaml" \
+      "7  Hermes          → .hermes/skills/ + cli-config.yaml + .hermes.md" \
       "8  Aider           → .aider.conf.yml") || true
 
     [ -z "$selected_raw" ] && selected_raw="1  Claude Code     → .claude/skills/"
@@ -268,7 +306,7 @@ _run_agent_selection() {
     echo "  4) Windsurf        → .windsurf/skills/"
     echo "  5) Cursor          → .cursor/rules/ + .cursorrules"
     echo "  6) Continue.dev    → .continue/prompts/"
-    echo "  7) Hermes          → ~/.hermes/config.yaml"
+    echo "  7) Hermes          → .hermes/skills/ + cli-config.yaml + .hermes.md"
     echo "  8) Aider           → .aider.conf.yml"
     echo ""
     read -r -p "선택 [기본값: 1 (Claude Code)]: " agent_raw
