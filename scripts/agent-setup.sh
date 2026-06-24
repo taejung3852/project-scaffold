@@ -165,7 +165,8 @@ _setup_hermes() {
     skill_name=$(basename "$skill_dir")
     [ -f "${skill_dir}SKILL.md" ] || continue
     # 상대 경로 사용 — Docker 마운트 후 컨테이너 내부에서도 해석 가능
-    ln -sf "../../${skill_dir}" ".hermes/skills/${skill_name}" 2>/dev/null || true
+    rm -f ".hermes/skills/${skill_name}"
+    ln -sf "../../${skill_dir}" ".hermes/skills/${skill_name}"
   done
   echo "  ✅ Hermes: .hermes/skills/ 심링크 완료 (상대 경로)"
 
